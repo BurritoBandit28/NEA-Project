@@ -1,16 +1,8 @@
 mod render;
 
 use sdl2::image::LoadTexture;
-use sdl2::keyboard::Keycode::Mute;
-use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Rect;
-use sdl2::render::{Canvas, Texture, TextureCreator, WindowCanvas};
-use sdl2::surface::Surface;
-use std::collections::HashMap;
-use std::sync::Mutex;
-use once_cell::sync::Lazy;
-
-use sdl2::video::WindowContext;
+use sdl2::render::{Texture, WindowCanvas};
 
 pub struct AssetData {
     UV: Option<Rect>,
@@ -47,17 +39,13 @@ fn main() {
 
     let texture_creator = canvas.texture_creator();
 
-    let background_test = texture_creator.load_texture("bgrnd2.png").unwrap();
+    let background_test = texture_creator.load_texture("assets/bgrnd2.png").unwrap();
 
-    let icons_texture = texture_creator
-        .load_texture("assets/gui/icons.png")
-        .unwrap();
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
-    let mut output_texture = texture_creator
-        .create_texture_target(PixelFormatEnum::ARGB32, DIMENSIONS.0, DIMENSIONS.1)
-        .unwrap();
     canvas.present();
+
+
     'running: loop {
         canvas.clear();
         canvas
@@ -68,6 +56,17 @@ fn main() {
                 _ => {}
             }
         }
+
+        render::draw_pp_texture(
+            event_pump.mouse_state().x(),
+            event_pump.mouse_state().y(),
+            &render::get_icons().lock().unwrap().get("cursor").unwrap(),
+            canvas,
+            scale_factor
+        );
+
+
+        /*
         draw_mouse(
             event_pump.mouse_state().x(),
             event_pump.mouse_state().y(),
@@ -75,6 +74,7 @@ fn main() {
             canvas,
             scale_factor,
         );
+         */
 
         canvas.present()
     }
@@ -82,7 +82,13 @@ fn main() {
 
 // Pixel perfect mouse rendering
 pub fn draw_mouse(x: i32, y: i32, icons: &Texture, canvas: &mut WindowCanvas, sf: i32) {
-    let uv = &render::get_icons().lock().unwrap().get("cursor").unwrap().UV.unwrap();
+    let uv = &render::get_icons()
+        .lock()
+        .unwrap()
+        .get("cursor")
+        .unwrap()
+        .UV
+        .unwrap();
 
     let mouse_rect = Rect::new(x / sf, y / sf, uv.w as u32, uv.h as u32);
 
