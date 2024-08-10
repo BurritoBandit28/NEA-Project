@@ -1,12 +1,13 @@
 mod render;
 mod game;
+mod entity;
 mod entities;
-
 
 use std::time::Instant;
 use sdl2::image::LoadTexture;
 use render::DIMENSIONS;
-use crate::entities::Entity;
+use crate::entities::{enemy, player};
+use crate::entity::{Entity, EntityTest};
 use crate::game::Game;
 
 fn main() {
@@ -51,9 +52,12 @@ fn main() {
 
     let mut game = Game::initiate();
     // test entities
-    Entity::create_player(&mut game);
-    Entity::create_obj(&mut game, (-30f32, 70f32));
+    //EntityTest::create_player(&mut game);
+    //EntityTest::create_obj(&mut game, (-30f32, 70f32));
+    player::Player::create(&mut game);
+    enemy::Enemy::create(&mut game);
 
+    let _ = game.mobiles.get_mut(0).unwrap().lock().unwrap().set_coords((10.0, 10.0));
 
     let mut delta : f32 = 0.0;
 
@@ -98,8 +102,8 @@ fn main() {
 fn world_space_screen_space_test() {
 
     let mut game = Game::initiate();
-    Entity::create_player(&mut game);
-    Entity::create_obj(&mut game, (-80f32, 0f32));
-    let out = game.mobiles.get(1).unwrap().screen(game.mobiles.get(0).unwrap());
+    EntityTest::create_player(&mut game);
+    EntityTest::create_obj(&mut game, (-80f32, 0f32));
+    let out = game.mobiles_old.get(1).unwrap().screen(game.mobiles_old.get(0).unwrap());
     println!("{:?}", out);
 }

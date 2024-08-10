@@ -2,15 +2,27 @@ use once_cell::sync::OnceCell;
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, WindowCanvas};
 use std::collections::HashMap;
+use std::iter::Copied;
 use std::sync::Mutex;
-
+use sdl2::pixels::Color;
 
 pub const DIMENSIONS: (u32, u32) = (320, 180);
 
+// todo, make clone implementation
 pub struct AssetData {
     pub(crate) UV: Option<Rect>,
     pub(crate) Origin: (u32, u32),
     pub(crate) texture_type: TextureType,
+}
+
+impl AssetData {
+    pub fn empty() -> Self {
+        Self {
+            UV: None,
+            Origin: (0, 0),
+            texture_type: TextureType::idk,
+        }
+    }
 }
 
 pub enum TextureType {
@@ -27,8 +39,24 @@ impl TextureType {
             TextureType::idk => {2}
         }
     }
-
 }
+
+impl Clone for TextureType {
+    fn clone(&self) -> Self {
+        match self.to_index() {
+            0 => {TextureType::icon},
+            1 => {TextureType::in_game_sprite},
+            2 => {TextureType::idk}
+            _ => {TextureType::idk}
+        }
+    }
+}
+
+impl Copy for TextureType {
+    
+}
+
+
 pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
     static INSTANCE: OnceCell<Mutex<HashMap<&'static str, AssetData>>> = OnceCell::new();
     INSTANCE.get_or_init(|| {
