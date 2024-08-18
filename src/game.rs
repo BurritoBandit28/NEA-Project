@@ -7,13 +7,11 @@ use sdl2::EventPump;
 use sdl2::keyboard::Scancode;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::player::Player;
-use crate::entity::{Entity, EntityTest, Mobile, Static};
+use crate::entity::{Entity, Mobile, Static};
 use crate::render::draw_pp_texture;
 
 // The data type that holds all game data.
 pub struct Game {
-    pub statics_old: HashMap<String, *mut EntityTest>, // old old (didnt even slightly work)
-    pub mobiles_old: Vec<EntityTest>, // old (worked but used types
     pub mobiles: Vec<Box<Mutex<dyn Mobile>>>, // new (uses traits) (better)
     pub statics : Vec<Arc<dyn Static>>,
     pub player : Option<usize>,
@@ -26,15 +24,6 @@ impl Game {
 
     // what happens every game loop
     pub fn cycle(&mut self, delta : f32) {
-
-
-        /*
-        if !self.player.is_none() {
-            println!("{}", self.mobiles.get(self.player.unwrap()).unwrap().is::<Player>());
-        }
-
-         */
-
 
         // new (traits)
         for e in self.mobiles.iter() {
@@ -49,7 +38,7 @@ impl Game {
 
         let mut m = &mut self.mobiles;
 
-        let player = m.get(0).unwrap();
+        let player = m.get(self.player.unwrap()).unwrap();
         let player_coords= player.lock().unwrap().get_coords();
 
         for e in m.iter() {
@@ -81,8 +70,6 @@ impl Game {
     pub fn initiate() -> Self {
         
         Self{
-            statics_old: HashMap::new(),
-            mobiles_old: vec![],
             mobiles: vec![],
             statics: vec![],
             player : None,

@@ -1,11 +1,12 @@
 use sdl2::rect::Rect;
 use std::sync::{Arc, Mutex};
+use log::warn;
 use sdl2::event::{Event, EventPollIterator};
 use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
 use crate::entity::{Entity, Mobile};
 use crate::game::Game;
-use crate::render::{AssetData, TextureType};
+use crate::render::{AssetData, Identifier, TextureType};
 use crate::utils::{mul_vec, normalise_vec};
 
 /// this file contains the code for the Player entity
@@ -31,9 +32,10 @@ impl Entity for Player {
 
     fn get_asset_data(&self) -> AssetData {
         AssetData {
-            UV: self.asset_data.UV.clone(),
-            Origin: self.asset_data.Origin.clone(),
+            uv: self.asset_data.uv.clone(),
+            origin: self.asset_data.origin.clone(),
             texture_type: self.asset_data.texture_type.clone(),
+            identifier: self.asset_data.identifier.clone(),
         }
     }
 
@@ -44,9 +46,10 @@ impl Player {
     pub fn create(game: &mut Game) {
         if game.player.is_none() {
             let asset_data = AssetData {
-                UV: Option::from(Rect::new(0, 0, 16, 16)),
-                Origin: (8, 8),
-                texture_type: TextureType::in_game_sprite
+                uv: Option::from(Rect::new(0, 0, 16, 16)),
+                origin: (8, 8),
+                texture_type: TextureType::in_game_sprite,
+                identifier: Identifier::empty(),
             };
 
             let mut player = Self {
@@ -65,7 +68,7 @@ impl Player {
             //game.player = Some(ret.clone());
         }
         else {
-            println!("Player already exists in instance! @ index {}", game.player.unwrap())
+            warn!("Player already exists in instance! @ index {}", game.player.unwrap())
         }
     }
 

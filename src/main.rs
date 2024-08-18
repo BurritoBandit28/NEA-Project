@@ -4,8 +4,9 @@ mod game;
 mod render;
 mod utils;
 
+use std::collections::HashMap;
 use crate::entities::{enemy, player};
-use crate::entity::{Entity, EntityTest};
+use crate::entity::{Entity};
 use crate::game::Game;
 use num::clamp;
 use render::DIMENSIONS;
@@ -15,10 +16,16 @@ use sdl2::keyboard::Keycode;
 use sdl2::rect::Rect;
 use sdl2::sys::KeyPress;
 use std::time::Instant;
+use log::info;
+use sdl2::keyboard::Keycode::Hash;
+use sdl2::render::Texture;
 use crate::render::AssetData;
 
 fn main() {
     // initial set up
+
+    // start logger
+    utils::init_logger();
 
     // start SDL2
     let sdl_ctx = sdl2::init().unwrap();
@@ -49,8 +56,8 @@ fn main() {
     let texture_creator = canvas.texture_creator();
     let background_test = texture_creator.load_texture("./assets/bgrnd.png").unwrap();
 
-    // initiallise textures
-    let textures = vec![
+    // initiallise textures - old
+    let textures_old = vec![
         texture_creator
             .load_texture("assets/gui/icons.png")
             .unwrap(),
@@ -59,6 +66,11 @@ fn main() {
             .unwrap(),
         texture_creator.load_texture("assets/missing.png").unwrap(),
     ];
+
+    // initialise textures - new
+    info!("Loading textures...");
+    let textures : HashMap<String,HashMap<String, Texture>> = HashMap::new();
+
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
@@ -122,7 +134,7 @@ fn main() {
         game.cycle(delta);
 
         unsafe {
-            game.render(canvas, scale_factor, &textures);
+            game.render(canvas, scale_factor, &textures_old);
         }
 
         //TODO
@@ -133,22 +145,10 @@ fn main() {
             &render::get_icons().lock().unwrap().get("cursor").unwrap(),
             canvas,
             scale_factor,
-            &textures,
+            &textures_old,
         );
 
         canvas.present();
         delta = start.elapsed().as_secs_f32();
     }
-}
-
-fn world_space_screen_space_test() {
-    let mut game = Game::initiate();
-    EntityTest::create_player(&mut game);
-    EntityTest::create_obj(&mut game, (-80f32, 0f32));
-    let out = game
-        .mobiles_old
-        .get(1)
-        .unwrap()
-        .screen(game.mobiles_old.get(0).unwrap());
-    println!("{:?}", out);
 }

@@ -10,17 +10,48 @@ pub const DIMENSIONS: (u32, u32) = (320, 180);
 
 // todo, make clone implementation
 pub struct AssetData {
-    pub(crate) UV: Option<Rect>,
-    pub(crate) Origin: (u32, u32),
+    pub(crate) uv: Option<Rect>,
+    pub(crate) origin: (u32, u32),
     pub(crate) texture_type: TextureType,
+    pub (crate) identifier: Identifier,
 }
 
 impl AssetData {
     pub fn empty() -> Self {
         Self {
-            UV: None,
-            Origin: (0, 0),
+            uv: None,
+            origin: (0, 0),
             texture_type: TextureType::idk,
+            identifier : Identifier::empty()
+        }
+    }
+}
+
+pub struct Identifier {
+    namespace : String,
+    path : String,
+}
+
+impl Identifier {
+    pub fn new(namespace : String, path : String) -> Self {
+        Self {
+            namespace,
+            path,
+        }
+    }
+    pub fn empty() -> Self {
+        Self {
+            namespace : "game".to_string(),
+            path : "missing.png".to_string(),
+        }
+    }
+}
+
+impl Clone for Identifier {
+    fn clone(&self) -> Self {
+        Self {
+            namespace: self.namespace.to_string(),
+            path: self.path.to_string(),
         }
     }
 }
@@ -64,25 +95,28 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
         m.insert(
             "cursor",
             AssetData {
-                UV: Option::from(Rect::new(0, 0, 16, 16)),
-                Origin: (0, 0),
+                uv: Option::from(Rect::new(0, 0, 16, 16)),
+                origin: (0, 0),
                 texture_type: TextureType::icon,
+                identifier: Identifier::empty(),
             },
         );
         m.insert(
             "finger",
             AssetData {
-                UV: Option::from(Rect::new(32, 0, 16, 16)),
-                Origin: (0, 0),
+                uv: Option::from(Rect::new(32, 0, 16, 16)),
+                origin: (0, 0),
                 texture_type: TextureType::icon,
+                identifier: Identifier::empty(),
             },
         );
         m.insert(
             "cursor_old",
             AssetData {
-                UV: Option::from(Rect::new(16, 0, 16, 16)),
-                Origin: (0,0),
-                texture_type: TextureType::icon
+                uv: Option::from(Rect::new(16, 0, 16, 16)),
+                origin: (0, 0),
+                texture_type: TextureType::icon,
+                identifier: Identifier::empty(),
             }
         );
         Mutex::new(m)
@@ -93,8 +127,8 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
 
 
 pub fn draw_pp_texture(x: i32, y: i32, ass: &AssetData, mut canvas: &mut WindowCanvas, sf: i32, textures : &Vec<Texture>) {
-    let uv = ass.UV.unwrap();
-    let tex_rect = Rect::new(x - ass.Origin.0 as i32, y - ass.Origin.1 as i32, uv.w as u32, uv.h as u32);
+    let uv = ass.uv.unwrap();
+    let tex_rect = Rect::new(x - ass.origin.0 as i32, y - ass.origin.1 as i32, uv.w as u32, uv.h as u32);
 
     canvas
         .set_scale(sf as f32, sf as f32)
