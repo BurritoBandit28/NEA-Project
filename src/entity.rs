@@ -31,8 +31,9 @@ pub trait Entity {
     fn screen(&mut self, player_coords :  (f32, f32)) -> (u32, u32) {
         let x = self.get_coords().0;
         let y = self.get_coords().1;
-        let px = player_coords.0 as i32;
-        let py = player_coords.1 as i32;
+        let px = (if player_coords.0 < 0.0 {player_coords.0 - 1.0} else { player_coords.0 }) as i32;
+        let py = (if player_coords.1 < 0.0 {player_coords.1 - 1.0} else { player_coords.1 }) as i32;
+        println!("{:?}", (px, py));
         (((160i32 - px) as f32 + x) as u32, ((90i32 - py ) as f32 + y) as u32)
     }
 

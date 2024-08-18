@@ -42,25 +42,31 @@ impl Entity for Player {
 
 impl Player {
     pub fn create(game: &mut Game) {
-        let asset_data = AssetData {
-            UV : Option::from(Rect::new(0, 0, 16, 16)),
-            Origin : (8,8),
-            texture_type : TextureType::in_game_sprite
-        };
+        if game.player.is_none() {
+            let asset_data = AssetData {
+                UV: Option::from(Rect::new(0, 0, 16, 16)),
+                Origin: (8, 8),
+                texture_type: TextureType::in_game_sprite
+            };
 
-        let mut player = Self{
-            coords: (0.0,0.0),
-            asset_data,
-            velocity: (0.0, 0.0),
-            uuid: "player".to_string(),
-            event_pump: None,
-            game: game,
-        };
+            let mut player = Self {
+                coords: (0.0, 0.0),
+                asset_data,
+                velocity: (0.0, 0.0),
+                uuid: "player".to_string(),
+                event_pump: None,
+                game: game,
+            };
 
-        let ret = Box::new(Mutex::new(player));
+            let ret = Box::new(Mutex::new(player));
 
-        game.mobiles.push(ret);
-        //game.player = Some(ret.clone());
+            game.player = Some(game.mobiles.len());
+            game.mobiles.push(ret);
+            //game.player = Some(ret.clone());
+        }
+        else {
+            println!("Player already exists in instance! @ index {}", game.player.unwrap())
+        }
     }
 
     pub fn add_pump(&mut self, ep : EventPump) {
@@ -109,6 +115,5 @@ impl Mobile for Player {
         let x = self.get_coords().0 + self.get_velocity().0 * delta;
         let y = self.get_coords().1 + self.get_velocity().1 * delta;
         self.set_coords( (x,y) );
-
     }
 }
