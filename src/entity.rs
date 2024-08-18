@@ -1,6 +1,7 @@
 use std::fmt::Pointer;
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
+use sdl2::event::EventPollIterator;
 use sdl2::rect::Rect;
 use crate::entities::player::Player;
 use crate::game::Game;
@@ -40,6 +41,7 @@ pub trait Entity {
     }
 
 }
+
 
 // methods for Static entities only
 pub trait Static : Entity {
@@ -98,7 +100,7 @@ impl EntityTest {
 
     // physics loop for the entity - different entities could have separate physics loops
     // delta refers to the time between each frame. this allows the velocity to correctly run in units of pixels/second
-    pub fn physics(&mut self, delta : f32) {
+    pub fn physics(&mut self, delta : f32, event_poll_iterator: Option<EventPollIterator>) {
         self.coords.0 += self.velocity.0 * delta;
         self.coords.1 += self.velocity.1 * delta;
     }

@@ -1,17 +1,23 @@
-mod render;
-mod game;
-mod entity;
 mod entities;
+mod entity;
+mod game;
+mod render;
+mod utils;
 
-use std::time::Instant;
-use sdl2::image::LoadTexture;
-use render::DIMENSIONS;
 use crate::entities::{enemy, player};
 use crate::entity::{Entity, EntityTest};
 use crate::game::Game;
+use num::clamp;
+use render::DIMENSIONS;
+use sdl2::event::Event;
+use sdl2::image::LoadTexture;
+use sdl2::keyboard::Keycode;
+use sdl2::rect::Rect;
+use sdl2::sys::KeyPress;
+use std::time::Instant;
+use crate::render::AssetData;
 
 fn main() {
-
     // initial set up
 
     // start SDL2
@@ -19,6 +25,10 @@ fn main() {
     let scale_factor =
         sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / DIMENSIONS.0 as i32;
     let video_subsys = sdl_ctx.video().unwrap();
+
+    let scale_offset = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor as i32) - 180;
+    let half_scale_offset = scale_offset / 2;
+    //todo : get the difference in height and display 2 black bars to give 16:9 ratio screen
 
     //hide mouse
     sdl_ctx.mouse().show_cursor(false);
@@ -37,13 +47,17 @@ fn main() {
     //create canvas
     let mut canvas = &mut window.into_canvas().build().unwrap();
     let texture_creator = canvas.texture_creator();
-    let background_test = texture_creator.load_texture("assets/bgrnd.png").unwrap();
+    let background_test = texture_creator.load_texture("./assets/bgrnd.png").unwrap();
 
     // initiallise textures
     let textures = vec![
-                        texture_creator.load_texture("assets/gui/icons.png").unwrap(),
-                        texture_creator.load_texture("assets/sprites/sprite.png").unwrap(),
-                        texture_creator.load_texture("assets/missing.png").unwrap()
+        texture_creator
+            .load_texture("assets/gui/icons.png")
+            .unwrap(),
+        texture_creator
+            .load_texture("assets/sprites/sprite.png")
+            .unwrap(),
+        texture_creator.load_texture("assets/missing.png").unwrap(),
     ];
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
@@ -57,9 +71,15 @@ fn main() {
     player::Player::create(&mut game);
     enemy::Enemy::create(&mut game);
 
-    let _ = game.mobiles.get_mut(0).unwrap().lock().unwrap().set_coords((10.0, 10.0));
+    let _ = game
+        .mobiles
+        .get_mut(0)
+        .unwrap()
+        .lock()
+        .unwrap()
+        .set_coords((10.0, 10.0));
 
-    let mut delta : f32 = 0.0;
+    let mut delta: f32 = 0.0;
 
     'running: loop {
         canvas.clear();
@@ -67,43 +87,68 @@ fn main() {
         let start = Instant::now();
 
         canvas
-            .copy_ex(&background_test, None, None, 0.0, None, false, false)
+            .copy_ex(
+                &background_test,
+                None,
+                Rect::new(0, half_scale_offset, 320, 180),
+                0.0,
+                None,
+                false,
+                false,
+            )
             .expect("TODO: panic message");
+
+
+        game.held_keys = vec![];
+        for key in event_pump.keyboard_state().pressed_scancodes() {
+            game.held_keys.push(key);
+            println!("{:?}", game.held_keys)
+        }
+
+        game.pressed_keys = vec![];
         for event in event_pump.poll_iter() {
+            game.pressed_keys.push(event.clone());
             match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => break 'running,
+
                 _ => {}
             }
         }
 
         game.cycle(delta);
 
-        unsafe { game.render(canvas, scale_factor, &textures); }
+        unsafe {
+            game.render(canvas, scale_factor, &textures);
+        }
 
-        ///TODO
-        /// gameplay_loop(event_pump)
-
+        //TODO
+        // gameplay_loop(event_pump)
         render::draw_pp_texture(
             event_pump.mouse_state().x() / scale_factor,
             event_pump.mouse_state().y() / scale_factor,
             &render::get_icons().lock().unwrap().get("cursor").unwrap(),
             canvas,
             scale_factor,
-            &textures
+            &textures,
         );
-
 
         canvas.present();
         delta = start.elapsed().as_secs_f32();
     }
-
-
 }
 
 fn world_space_screen_space_test() {
-
     let mut game = Game::initiate();
     EntityTest::create_player(&mut game);
     EntityTest::create_obj(&mut game, (-80f32, 0f32));
-    let out = game.mobiles_old.get(1).unwrap().screen(game.mobiles_old.get(0).unwrap());
+    let out = game
+        .mobiles_old
+        .get(1)
+        .unwrap()
+        .screen(game.mobiles_old.get(0).unwrap());
     println!("{:?}", out);
 }

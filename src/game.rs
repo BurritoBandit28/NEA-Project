@@ -1,7 +1,12 @@
 use std::collections::HashMap;
+use std::option::Iter;
 use std::sync::{Arc, Mutex};
 use image::codecs::jpeg::PixelDensityUnit;
+use sdl2::event::{Event, EventPollIterator};
+use sdl2::EventPump;
+use sdl2::keyboard::Scancode;
 use sdl2::render::{Texture, WindowCanvas};
+use crate::entities::player::Player;
 use crate::entity::{Entity, EntityTest, Mobile, Static};
 use crate::render::draw_pp_texture;
 
@@ -9,9 +14,11 @@ use crate::render::draw_pp_texture;
 pub struct Game {
     pub statics_old: HashMap<String, *mut EntityTest>, // old old (didnt even slightly work)
     pub mobiles_old: Vec<EntityTest>, // old (worked but used types
-    pub mobiles: Vec<Arc<Mutex<dyn Mobile>>>, // new (uses traits) (better)
+    pub mobiles: Vec<Box<Mutex<dyn Mobile>>>, // new (uses traits) (better)
     pub statics : Vec<Arc<dyn Static>>,
-    pub player : usize
+    pub player : Option<usize>,
+    pub pressed_keys: Vec<Event>,
+    pub held_keys : Vec<Scancode>
     
 }
 
@@ -20,11 +27,14 @@ impl Game {
     // what happens every game loop
     pub fn cycle(&mut self, delta : f32) {
 
-        // old (types)
-        for e in self.mobiles_old.iter_mut() {
 
-            e.physics(delta);
+        /*
+        if !self.player.is_none() {
+            println!("{}", self.mobiles.get(self.player.unwrap()).unwrap().is::<Player>());
         }
+
+         */
+
 
         // new (traits)
         for e in self.mobiles.iter() {
@@ -34,6 +44,8 @@ impl Game {
     }
 
     pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &Vec<Texture>) {
+
+        //todo get render order by sorting all entities by their y coordinate, rendering the highest one first
 
         let mut m = &mut self.mobiles;
 
@@ -73,7 +85,9 @@ impl Game {
             mobiles_old: vec![],
             mobiles: vec![],
             statics: vec![],
-            player : 0
+            player : None,
+            pressed_keys: vec![],
+            held_keys : vec![]
         }
         
     }

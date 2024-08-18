@@ -46,7 +46,7 @@ impl Enemy {
             uuid: "100".to_string(), // will be from hash function
             game,
         };
-        let ret = Arc::new(Mutex::new(entity));
+        let ret = Box::new(Mutex::new(entity));
         game.mobiles.push(ret);
     }
 }
