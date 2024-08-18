@@ -9,6 +9,7 @@ use crate::render::{AssetData, TextureType};
 
 /// This file contains all the traits and helper functions to do with Entities
 
+//todo: delete old entity stuff
 
 // all basic function any entity type must have
 pub trait Entity {
