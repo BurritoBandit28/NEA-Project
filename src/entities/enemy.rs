@@ -1,6 +1,6 @@
 use sdl2::rect::Rect;
 use std::sync::{Arc, Mutex};
-use crate::entity::{Entity, Mobile};
+use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
 use crate::render::{AssetData, Identifier, TextureType};
 
@@ -21,14 +21,7 @@ impl Entity for Enemy {
         self.coords = coords;
     }
 
-    fn get_asset_data(&self) -> AssetData {
-        AssetData {
-            uv: self.asset_data.uv.clone(),
-            origin: self.asset_data.origin.clone(),
-            texture_type: self.asset_data.texture_type.clone(),
-            identifier: self.asset_data.identifier.clone()
-        }
-    }
+
 
 }
 
@@ -50,6 +43,17 @@ impl Enemy {
         };
         let ret = Box::new(Mutex::new(entity));
         game.mobiles.push(ret);
+    }
+}
+
+impl Renderable for Enemy {
+    fn get_asset_data(&self) -> AssetData {
+        AssetData {
+            uv: self.asset_data.uv.clone(),
+            origin: self.asset_data.origin.clone(),
+            texture_type: self.asset_data.texture_type.clone(),
+            identifier: self.asset_data.identifier.clone()
+        }
     }
 }
 

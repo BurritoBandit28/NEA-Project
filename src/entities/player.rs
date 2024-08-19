@@ -4,7 +4,7 @@ use log::warn;
 use sdl2::event::{Event, EventPollIterator};
 use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
-use crate::entity::{Entity, Mobile};
+use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
 use crate::render::{AssetData, Identifier, TextureType};
 use crate::utils::{mul_vec, normalise_vec};
@@ -17,8 +17,8 @@ pub struct Player {
     // hitbox : matrix,
     velocity : (f32, f32),
     uuid : String,
-    event_pump: Option<EventPump>,
-    game : *mut Game
+    game : *mut Game,
+    health : f32
 }
 
 impl Entity for Player {
@@ -30,6 +30,13 @@ impl Entity for Player {
         self.coords = coords;
     }
 
+    fn get_health(&mut self) -> &f32 {
+        &self.health
+    }
+
+}
+
+impl Renderable for Player {
     fn get_asset_data(&self) -> AssetData {
         AssetData {
             uv: self.asset_data.uv.clone(),
@@ -38,8 +45,6 @@ impl Entity for Player {
             identifier: self.asset_data.identifier.clone(),
         }
     }
-
-
 }
 
 impl Player {
@@ -57,8 +62,8 @@ impl Player {
                 asset_data,
                 velocity: (0.0, 0.0),
                 uuid: "player".to_string(),
-                event_pump: None,
                 game: game,
+                health : 20.0
             };
 
             let ret = Box::new(Mutex::new(player));
@@ -72,16 +77,24 @@ impl Player {
         }
     }
 
-    pub fn add_pump(&mut self, ep : EventPump) {
-        self.event_pump = Some(ep);
-    }
-
-    pub fn movement(&mut self, keys: Vec<Scancode>) {
+    pub fn handle_input(&mut self, held_keys: Vec<Scancode>, events: Vec<Event>) {
         // replace with an actual drag constant in the physics loop
         //self.set_velocity((0.0, 0.0));
         let mut ret_vel = (0.0, 0.0);
 
-        for key in keys {
+        for event in events {
+            match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => unsafe{(*self.game).running = false},
+
+                _ => {}
+            }
+        }
+
+        for key in held_keys {
             match key {
                 Scancode::W => {
                     ret_vel.1 -= 1.0;
@@ -114,7 +127,7 @@ impl Mobile for Player {
     }
     fn physics(&mut self, delta: f32) {
         let game = self.game.clone();
-        unsafe { self.movement((*game).held_keys.clone()) }
+        unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
         let x = self.get_coords().0 + self.get_velocity().0 * delta;
         let y = self.get_coords().1 + self.get_velocity().1 * delta;
         self.set_coords( (x,y) );

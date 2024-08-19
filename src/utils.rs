@@ -1,3 +1,7 @@
+#![feature(trait_upcasting)]
+#![allow(incomplete_features)]
+
+use std::sync::Mutex;
 use std::time::SystemTime;
 use log::{Level, LevelFilter, Metadata, Record};
 use log4rs::append::console::{ConsoleAppender, Target};
@@ -8,12 +12,14 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use num::integer::sqrt;
 use num::pow;
+use crate::entity::{Mobile, Renderable, Static};
 
 pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
     vec.0 *= val;
     vec.1 *= val;
 }
 
+// broken : fix
 pub fn normalise_vec(vec : &mut (f32, f32)) {
     // get the square root of the object
     let mag = f32::sqrt(vec.0 * vec.0) + (vec.1 * vec.1);
@@ -22,20 +28,56 @@ pub fn normalise_vec(vec : &mut (f32, f32)) {
 }
 
 
-struct SimpleLogger;
-
-impl log::Log for SimpleLogger {
-    fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Info
+// a quick sort alogorithm designed to get the order of renderable objects
+pub(crate) fn order_sort(statics : &mut Vec<Box<Mutex<dyn Static>>>, mobiles : &mut Vec<Box<Mutex<dyn Mobile>>> /*todo Tile objects */) -> Vec<(usize, usize, f32)> {
+    //              list   index  amount
+    let mut list : Vec<(usize, usize, f32)> = vec![];
+    let mut iter = 0usize;
+    for s in statics {
+        list.push((0usize, iter, s.lock().unwrap().get_coords().1) );
+        iter+=1;
     }
 
-    fn log(&self, record: &Record) {
-        if self.enabled(record.metadata()) {
-            println!("{} - {}", record.level(), record.args());
+    iter = 0usize;
+    for m in mobiles {
+        list.push((1usize, iter, m.lock().unwrap().get_coords().1) );
+        iter+=1;
+    }
+
+    sort(&mut list);
+
+    list
+
+}
+
+fn sort(list : &mut Vec<(usize, usize, f32)>) {
+    if !(list.len() <= 1) {
+        let mut indx1 = 1usize;
+        let mut indx2 = list.len() - 1;
+        let pivot = 0;
+        while indx2 >= indx1 {
+            while indx1 <= indx2 && list[indx1].2 <= list[pivot].2 {
+                indx1 += 1;
+            }
+            while indx2 >= indx1 && list[indx2].2 >= list[pivot].2 {
+                indx2 -= 1;
+            }
+            if indx2 > indx1 {
+                list.swap(indx1, indx2)
+            }
         }
-    }
+        list.swap(pivot, indx2);
 
-    fn flush(&self) {}
+        let mut left = list[0..indx2].to_vec();
+        sort(&mut left);
+        let mut right = list[(indx2 + 1)..list.len()].to_vec();
+        sort(&mut right);
+
+        left.push(list[indx2]);
+        left.append(&mut right);
+        list.clear();
+        list.extend_from_slice(&left);
+    }
 }
 
 pub fn init_logger() {

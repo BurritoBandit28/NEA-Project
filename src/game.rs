@@ -7,16 +7,18 @@ use sdl2::EventPump;
 use sdl2::keyboard::Scancode;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::player::Player;
-use crate::entity::{Entity, Mobile, Static};
+use crate::entity::{Entity, Mobile, Renderable, Static};
 use crate::render::draw_pp_texture;
+use crate::utils::order_sort;
 
 // The data type that holds all game data.
 pub struct Game {
     pub mobiles: Vec<Box<Mutex<dyn Mobile>>>, // new (uses traits) (better)
-    pub statics : Vec<Arc<dyn Static>>,
+    pub statics : Vec<Box<Mutex<dyn Static>>>,
     pub player : Option<usize>,
-    pub pressed_keys: Vec<Event>,
-    pub held_keys : Vec<Scancode>
+    pub events: Vec<Event>,
+    pub held_keys : Vec<Scancode>,
+    pub running : bool
     
 }
 
@@ -36,16 +38,50 @@ impl Game {
 
         //todo get render order by sorting all entities by their y coordinate, rendering the highest one first
 
+        let order  = order_sort(&mut self.statics, &mut self.mobiles);
+
         let mut m = &mut self.mobiles;
 
         let player = m.get(self.player.unwrap()).unwrap();
         let player_coords= player.lock().unwrap().get_coords();
 
-        for e in m.iter() {
+        for x in order {
+            match x.0 {
+                0 => {
+                    let mut list = &mut self.statics;
+                    let mut obj = list.get(x.1).unwrap().lock().unwrap();
+                    let screen_coords = &obj.screen(player_coords);
+                    let asset_data = &obj.get_asset_data();
+                    draw_pp_texture(screen_coords.0, screen_coords.1, &asset_data, canvas, sf, textures)
+                }
+                _ => {
+                    let mut list = &mut self.mobiles;
+                    let mut obj = list.get(x.1).unwrap().lock().unwrap();
+                    let screen_coords = &obj.screen(player_coords);
+                    let asset_data = &obj.get_asset_data();
+                    draw_pp_texture(screen_coords.0, screen_coords.1, &asset_data, canvas, sf, textures)
+                }
+            }
+
+        }
+
+        /*
+        for e in renderables.iter() {
             let screen_coords = &e.lock().unwrap().screen(player_coords);
             let asset_data = e.lock().unwrap().get_asset_data();
             draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, &asset_data, canvas, sf, textures)
         }
+
+           for e in m.iter() {
+            let screen_coords = &e.lock().unwrap().screen(player_coords);
+            let asset_data = e.lock().unwrap().get_asset_data();
+            draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, &asset_data, canvas, sf, textures)
+        }
+         */
+
+
+
+
 
 
         /*
@@ -73,8 +109,9 @@ impl Game {
             mobiles: vec![],
             statics: vec![],
             player : None,
-            pressed_keys: vec![],
-            held_keys : vec![]
+            events: vec![],
+            held_keys : vec![],
+            running : true
         }
         
     }

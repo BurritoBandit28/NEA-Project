@@ -4,6 +4,7 @@ mod game;
 mod render;
 mod utils;
 
+
 use std::collections::HashMap;
 use crate::entities::{enemy, player};
 use crate::entity::{Entity};
@@ -17,6 +18,7 @@ use sdl2::rect::Rect;
 use sdl2::sys::KeyPress;
 use std::time::Instant;
 use log::info;
+use sdl2::event::Event::KeyDown;
 use sdl2::keyboard::Keycode::Hash;
 use sdl2::render::Texture;
 use crate::render::AssetData;
@@ -93,7 +95,7 @@ fn main() {
 
     let mut delta: f32 = 0.0;
 
-    'running: loop {
+    while game.running {
         canvas.clear();
 
         let start = Instant::now();
@@ -114,21 +116,11 @@ fn main() {
         game.held_keys = vec![];
         for key in event_pump.keyboard_state().pressed_scancodes() {
             game.held_keys.push(key);
-            println!("{:?}", game.held_keys)
         }
 
-        game.pressed_keys = vec![];
+        game.events = vec![];
         for event in event_pump.poll_iter() {
-            game.pressed_keys.push(event.clone());
-            match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => break 'running,
-
-                _ => {}
-            }
+            game.events.push(event.clone());
         }
 
         game.cycle(delta);
