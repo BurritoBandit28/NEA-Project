@@ -5,7 +5,7 @@ use sdl2::event::EventPollIterator;
 use sdl2::rect::Rect;
 use crate::entities::player::Player;
 use crate::game::Game;
-use crate::render::{AssetData, TextureType};
+use crate::render::{AssetData};
 
 /// This file contains all the traits and helper functions to do with Entities
 

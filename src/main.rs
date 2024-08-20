@@ -6,6 +6,9 @@ mod utils;
 
 
 use std::collections::HashMap;
+use std::{env, fs};
+use std::hash::Hash;
+use std::path::Path;
 use crate::entities::{enemy, player};
 use crate::entity::{Entity};
 use crate::game::Game;
@@ -19,15 +22,18 @@ use sdl2::sys::KeyPress;
 use std::time::Instant;
 use log::info;
 use sdl2::event::Event::KeyDown;
-use sdl2::keyboard::Keycode::Hash;
 use sdl2::render::Texture;
-use crate::render::AssetData;
+use walkdir::WalkDir;
+use crate::render::{AssetData, ResourceLocation};
 
 fn main() {
+
     // initial set up
 
     // start logger
     utils::init_logger();
+
+    info!("Initialising SDL2");
 
     // start SDL2
     let sdl_ctx = sdl2::init().unwrap();
@@ -50,33 +56,39 @@ fn main() {
         .build()
         .unwrap();
 
+    info!("complete");
+
     // lock mouse to window
     &window.set_mouse_grab(true);
 
     //create canvas
     let mut canvas = &mut window.into_canvas().build().unwrap();
     let texture_creator = canvas.texture_creator();
-    let background_test = texture_creator.load_texture("./assets/bgrnd.png").unwrap();
-
-    // initiallise textures - old
-    let textures_old = vec![
-        texture_creator
-            .load_texture("assets/gui/icons.png")
-            .unwrap(),
-        texture_creator
-            .load_texture("assets/sprites/sprite.png")
-            .unwrap(),
-        texture_creator.load_texture("assets/missing.png").unwrap(),
-    ];
+    let background_test = texture_creator.load_texture("./assets/game/sprites/bgrnd.png").unwrap();
 
     // initialise textures - new
     info!("Loading textures...");
-    let textures : HashMap<String,HashMap<String, Texture>> = HashMap::new();
-
+    let mut textures : HashMap<String, Texture> = HashMap::new();
+    for dir in WalkDir::new(".\\assets\\") {
+        let path = String::from(dir.unwrap().path().to_str().unwrap());
+        if path.clone().ends_with(".png") {
+            let mut rl = ResourceLocation::empty();
+            let split : Vec<_> = path.split("\\").collect();
+            let namespace = &split[2];
+            rl.set_namespace(namespace.to_string());
+            let path = path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1];
+            rl.set_path(path.to_string());
+            let texture = texture_creator.load_texture(format!(".\\assets\\{}\\{}", namespace, path).as_str());
+            textures.insert(rl.clone().to_string(), texture.unwrap());
+        }
+    }
+    info!("Textures loaded!");
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
     canvas.present();
+
+    info!("Initiating game controller");
 
     let mut game = Game::initiate();
     // test entities
@@ -94,6 +106,8 @@ fn main() {
         .set_coords((10.0, 10.0));
 
     let mut delta: f32 = 0.0;
+
+    info!("Game instance initiated!");
 
     while game.running {
         canvas.clear();
@@ -126,7 +140,7 @@ fn main() {
         game.cycle(delta);
 
         unsafe {
-            game.render(canvas, scale_factor, &textures_old);
+            game.render(canvas, scale_factor, &textures);
         }
 
         //TODO
@@ -137,7 +151,7 @@ fn main() {
             &render::get_icons().lock().unwrap().get("cursor").unwrap(),
             canvas,
             scale_factor,
-            &textures_old,
+            &textures
         );
 
         canvas.present();

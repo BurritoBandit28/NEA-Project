@@ -2,7 +2,7 @@ use sdl2::rect::Rect;
 use std::sync::{Arc, Mutex};
 use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
-use crate::render::{AssetData, Identifier, TextureType};
+use crate::render::{AssetData, ResourceLocation};
 
 pub struct Enemy {
     coords: (f32, f32),
@@ -28,10 +28,9 @@ impl Entity for Enemy {
 impl Enemy {
     pub fn create(game: &mut Game) {
         let asset_data = AssetData {
-            uv: Option::from(Rect::new(16, 0, 16, 16)),
-            origin: (8, 8),
-            texture_type : TextureType::in_game_sprite,
-            identifier: Identifier::empty(),
+            uv: Option::from(Rect::new(0, 0, 32, 32)),
+            origin: (16, 22),
+            identifier: ResourceLocation::new("game", "sprites\\entity\\enemy.png"),
         };
 
         let mut entity = Self{
@@ -51,7 +50,6 @@ impl Renderable for Enemy {
         AssetData {
             uv: self.asset_data.uv.clone(),
             origin: self.asset_data.origin.clone(),
-            texture_type: self.asset_data.texture_type.clone(),
             identifier: self.asset_data.identifier.clone()
         }
     }

@@ -6,7 +6,7 @@ use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
 use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
-use crate::render::{AssetData, Identifier, TextureType};
+use crate::render::{AssetData, ResourceLocation};
 use crate::utils::{mul_vec, normalise_vec};
 
 /// this file contains the code for the Player entity
@@ -41,7 +41,6 @@ impl Renderable for Player {
         AssetData {
             uv: self.asset_data.uv.clone(),
             origin: self.asset_data.origin.clone(),
-            texture_type: self.asset_data.texture_type.clone(),
             identifier: self.asset_data.identifier.clone(),
         }
     }
@@ -51,10 +50,9 @@ impl Player {
     pub fn create(game: &mut Game) {
         if game.player.is_none() {
             let asset_data = AssetData {
-                uv: Option::from(Rect::new(0, 0, 16, 16)),
-                origin: (8, 8),
-                texture_type: TextureType::in_game_sprite,
-                identifier: Identifier::empty(),
+                uv: Option::from(Rect::new(0, 0, 32, 32)),
+                origin: (16, 22),
+                identifier: ResourceLocation::new("game", "sprites\\entity\\player.png"),
             };
 
             let mut player = Self {

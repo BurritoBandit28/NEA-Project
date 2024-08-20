@@ -1,5 +1,3 @@
-#![feature(trait_upcasting)]
-#![allow(incomplete_features)]
 
 use std::sync::Mutex;
 use std::time::SystemTime;
@@ -19,7 +17,7 @@ pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
     vec.1 *= val;
 }
 
-// broken : fix
+// broken : todo fix
 pub fn normalise_vec(vec : &mut (f32, f32)) {
     // get the square root of the object
     let mag = f32::sqrt(vec.0 * vec.0) + (vec.1 * vec.1);
@@ -28,7 +26,7 @@ pub fn normalise_vec(vec : &mut (f32, f32)) {
 }
 
 
-// a quick sort alogorithm designed to get the order of renderable objects
+
 pub(crate) fn order_sort(statics : &mut Vec<Box<Mutex<dyn Static>>>, mobiles : &mut Vec<Box<Mutex<dyn Mobile>>> /*todo Tile objects */) -> Vec<(usize, usize, f32)> {
     //              list   index  amount
     let mut list : Vec<(usize, usize, f32)> = vec![];
@@ -50,6 +48,7 @@ pub(crate) fn order_sort(statics : &mut Vec<Box<Mutex<dyn Static>>>, mobiles : &
 
 }
 
+// a quick sort alogorithm designed to get the order of renderable objects
 fn sort(list : &mut Vec<(usize, usize, f32)>) {
     if !(list.len() <= 1) {
         let mut indx1 = 1usize;

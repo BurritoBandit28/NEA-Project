@@ -8,7 +8,7 @@ use sdl2::keyboard::Scancode;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::player::Player;
 use crate::entity::{Entity, Mobile, Renderable, Static};
-use crate::render::draw_pp_texture;
+use crate::render::{draw_pp_texture, ResourceLocation};
 use crate::utils::order_sort;
 
 // The data type that holds all game data.
@@ -34,9 +34,7 @@ impl Game {
 
     }
 
-    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &Vec<Texture>) {
-
-        //todo get render order by sorting all entities by their y coordinate, rendering the highest one first
+    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>) {
 
         let order  = order_sort(&mut self.statics, &mut self.mobiles);
 
@@ -64,42 +62,6 @@ impl Game {
             }
 
         }
-
-        /*
-        for e in renderables.iter() {
-            let screen_coords = &e.lock().unwrap().screen(player_coords);
-            let asset_data = e.lock().unwrap().get_asset_data();
-            draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, &asset_data, canvas, sf, textures)
-        }
-
-           for e in m.iter() {
-            let screen_coords = &e.lock().unwrap().screen(player_coords);
-            let asset_data = e.lock().unwrap().get_asset_data();
-            draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, &asset_data, canvas, sf, textures)
-        }
-         */
-
-
-
-
-
-
-        /*
-        let mut player = self.mobiles_old.get(0).unwrap();
-
-        for e in self.mobiles_old.iter() {
-            let screen_coords = &e.screen(player);
-            let asset_data = &e.asset_data;
-            draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, asset_data, canvas, sf, textures)
-        }
-
-        for e in self.statics.iter() {
-            let screen_coords = unsafe { &e.1.as_ref().unwrap().screen(self.mobiles.get("player").unwrap().as_mut().unwrap())};
-            let asset_data =unsafe { &e.1.as_ref().unwrap().asset_data};
-            draw_pp_texture(screen_coords.0 as i32, screen_coords.1 as i32, asset_data, canvas, sf, textures)
-        }
-
-         */
 
     }
     
