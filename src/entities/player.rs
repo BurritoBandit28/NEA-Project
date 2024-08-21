@@ -6,7 +6,8 @@ use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
 use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
-use crate::render::{AssetData, ResourceLocation};
+use crate::render::AssetData;
+use crate::resource_location::ResourceLocation;
 use crate::utils::{mul_vec, normalise_vec};
 
 /// this file contains the code for the Player entity
@@ -41,7 +42,7 @@ impl Renderable for Player {
         AssetData {
             uv: self.asset_data.uv.clone(),
             origin: self.asset_data.origin.clone(),
-            identifier: self.asset_data.identifier.clone(),
+            resource_location: self.asset_data.resource_location.clone(),
         }
     }
 }
@@ -52,7 +53,7 @@ impl Player {
             let asset_data = AssetData {
                 uv: Option::from(Rect::new(0, 0, 32, 32)),
                 origin: (16, 22),
-                identifier: ResourceLocation::new("game", "sprites\\entity\\player.png"),
+                resource_location: ResourceLocation::new("game", "entity\\player.png"),
             };
 
             let mut player = Self {
@@ -60,7 +61,7 @@ impl Player {
                 asset_data,
                 velocity: (0.0, 0.0),
                 uuid: "player".to_string(),
-                game: game,
+                game,
                 health : 20.0
             };
 
@@ -110,7 +111,7 @@ impl Player {
             }
         }
         //normalise_vec(&mut ret_vel);
-        mul_vec(&mut ret_vel, 20.0);
+        mul_vec(&mut ret_vel, 60.0);
         self.set_velocity(ret_vel);
     }
 }

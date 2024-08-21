@@ -1,0 +1,27 @@
+{
+  "name": "Test block idk why",
+
+  "resource_location" : "game:tiles\\test.png",
+
+  "type" : "wall",
+
+  "uv" : {
+    "x" : 0,
+    "y" : 0
+  },
+
+  "size" : "big",
+
+  "origin" : {
+    "x" : 0,
+    "y" : 0
+  },
+
+  "collision" : true,
+  "collision_box" : {
+    "x" : 64,
+    "y" : 64
+  },
+
+  "material" : "game:metal.json"
+}

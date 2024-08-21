@@ -10,14 +10,15 @@ use sdl2::keyboard::Scancode::I;
 use sdl2::libc::stat;
 use sdl2::pixels::Color;
 use crate::render;
+use crate::resource_location::ResourceLocation;
 
 pub const DIMENSIONS: (u32, u32) = (320, 180);
 
 // todo, make clone implementation
 pub struct AssetData {
     pub(crate) uv: Option<Rect>,
-    pub(crate) origin: (u32, u32),
-    pub (crate) identifier: ResourceLocation,
+    pub(crate) origin: (i32, i32),
+    pub (crate) resource_location: ResourceLocation,
 }
 
 impl AssetData {
@@ -25,62 +26,21 @@ impl AssetData {
         Self {
             uv: None,
             origin: (0, 0),
-            identifier : ResourceLocation::empty()
+            resource_location: ResourceLocation::empty()
         }
     }
 }
 
-#[derive(Debug)]
-pub struct ResourceLocation {
-    pub namespace : String,
-    pub path : String,
-}
-
-impl PartialEq<Self> for ResourceLocation {
-    fn eq(&self, other: &Self) -> bool {
-        self.path.eq(&other.path) && self.path.eq(&other.namespace)
-    }
-}
-
-impl Eq for ResourceLocation {
-
-}
-
-impl ResourceLocation {
-    pub fn new(namespace : &str, path : &str) -> Self {
-        Self {
-            namespace : namespace.to_string(),
-            path : path.to_string(),
-        }
-    }
-    pub fn empty() -> Self {
-        Self {
-            namespace : "game".to_string(),
-            path : "missing.png".to_string(),
-        }
-    }
-
-    pub fn set_namespace(&mut self, namespace : String) {
-        self.namespace = namespace;
-    }
-
-    pub fn set_path(&mut self, path : String) {
-        self.path = path;
-    }
-
-    pub fn to_string(&self) -> String {
-        format!("{}:{}", self.namespace, self.path)
-    }
-}
-
-impl Clone for ResourceLocation {
+impl Clone for AssetData {
     fn clone(&self) -> Self {
         Self {
-            namespace: self.namespace.to_string(),
-            path: self.path.to_string(),
+            uv: self.uv.clone(),
+            origin: self.origin.clone(),
+            resource_location: self.resource_location.clone(),
         }
     }
 }
+
 
 
 pub fn get_missing_list() -> &'static Mutex<Vec<String>>{
@@ -101,7 +61,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(0, 0, 16, 16)),
                 origin: (0, 0),
-                identifier: ResourceLocation::new("game", "sprites\\gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
             },
         );
         m.insert(
@@ -109,7 +69,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(32, 0, 16, 16)),
                 origin: (0, 0),
-                identifier: ResourceLocation::new("game", "sprites\\gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
             },
         );
         m.insert(
@@ -117,7 +77,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(16, 0, 16, 16)),
                 origin: (0, 0),
-                identifier: ResourceLocation::new("game", "sprites\\gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
             }
         );
         Mutex::new(m)
@@ -130,7 +90,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
 pub fn draw_pp_texture(x: i32, y: i32, ass: &AssetData, mut canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>) {
     let uv = ass.uv.unwrap();
     let tex_rect = Rect::new(x - ass.origin.0 as i32, y - ass.origin.1 as i32, uv.w as u32, uv.h as u32);
-    let mut id = ass.identifier.clone();
+    let mut id = ass.resource_location.clone();
 
     canvas
         .set_scale(sf as f32, sf as f32)
@@ -143,7 +103,7 @@ pub fn draw_pp_texture(x: i32, y: i32, ass: &AssetData, mut canvas: &mut WindowC
             warn!("Texture at {} could not be found!", id.to_string())
         }
         get_missing_list().lock().unwrap().push(id.clone().to_string());
-        texture = textures.get(&ResourceLocation::new("game", "sprites\\missing.png").to_string());
+        texture = textures.get(&ResourceLocation::new("game", "missing.png").to_string());
     }
 
     canvas

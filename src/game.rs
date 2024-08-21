@@ -1,14 +1,11 @@
 use std::collections::HashMap;
-use std::option::Iter;
-use std::sync::{Arc, Mutex};
-use image::codecs::jpeg::PixelDensityUnit;
-use sdl2::event::{Event, EventPollIterator};
-use sdl2::EventPump;
+use std::sync::Mutex;
+use sdl2::event::Event;
 use sdl2::keyboard::Scancode;
 use sdl2::render::{Texture, WindowCanvas};
-use crate::entities::player::Player;
 use crate::entity::{Entity, Mobile, Renderable, Static};
-use crate::render::{draw_pp_texture, ResourceLocation};
+use crate::level::Level;
+use crate::render::draw_pp_texture;
 use crate::utils::order_sort;
 
 // The data type that holds all game data.
@@ -18,7 +15,8 @@ pub struct Game {
     pub player : Option<usize>,
     pub events: Vec<Event>,
     pub held_keys : Vec<Scancode>,
-    pub running : bool
+    pub running : bool,
+    pub current_level : Option<Level>
     
 }
 
@@ -36,12 +34,21 @@ impl Game {
 
     pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>) {
 
+
+
+
+
         let order  = order_sort(&mut self.statics, &mut self.mobiles);
 
         let mut m = &mut self.mobiles;
 
         let player = m.get(self.player.unwrap()).unwrap();
         let player_coords= player.lock().unwrap().get_coords();
+
+        let mut level = &mut self.current_level;
+        if level.is_some() {
+            level.as_mut().unwrap().render(player_coords, textures, canvas, sf);
+        }
 
         for x in order {
             match x.0 {
@@ -73,7 +80,8 @@ impl Game {
             player : None,
             events: vec![],
             held_keys : vec![],
-            running : true
+            running : true,
+            current_level : None,
         }
         
     }

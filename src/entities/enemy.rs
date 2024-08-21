@@ -1,8 +1,9 @@
 use sdl2::rect::Rect;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use crate::entity::{Entity, Mobile, Renderable};
 use crate::game::Game;
-use crate::render::{AssetData, ResourceLocation};
+use crate::render::AssetData;
+use crate::resource_location::ResourceLocation;
 
 pub struct Enemy {
     coords: (f32, f32),
@@ -30,7 +31,7 @@ impl Enemy {
         let asset_data = AssetData {
             uv: Option::from(Rect::new(0, 0, 32, 32)),
             origin: (16, 22),
-            identifier: ResourceLocation::new("game", "sprites\\entity\\enemy.png"),
+            resource_location: ResourceLocation::new("game", "entity\\enemy.png"),
         };
 
         let mut entity = Self{
@@ -50,7 +51,7 @@ impl Renderable for Enemy {
         AssetData {
             uv: self.asset_data.uv.clone(),
             origin: self.asset_data.origin.clone(),
-            identifier: self.asset_data.identifier.clone()
+            resource_location: self.asset_data.resource_location.clone()
         }
     }
 }

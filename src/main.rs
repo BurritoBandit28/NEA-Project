@@ -3,14 +3,16 @@ mod entity;
 mod game;
 mod render;
 mod utils;
-
+mod level;
+mod tile;
+mod resource_location;
 
 use std::collections::HashMap;
 use std::{env, fs};
 use std::hash::Hash;
 use std::path::Path;
 use crate::entities::{enemy, player};
-use crate::entity::{Entity};
+use crate::entity::Entity;
 use crate::game::Game;
 use num::clamp;
 use render::DIMENSIONS;
@@ -24,7 +26,10 @@ use log::info;
 use sdl2::event::Event::KeyDown;
 use sdl2::render::Texture;
 use walkdir::WalkDir;
-use crate::render::{AssetData, ResourceLocation};
+use resource_location::ResourceLocation;
+use crate::level::Level;
+use crate::render::AssetData;
+use crate::tile::{Tile, TileSize, TileType};
 
 fn main() {
 
@@ -64,25 +69,126 @@ fn main() {
     //create canvas
     let mut canvas = &mut window.into_canvas().build().unwrap();
     let texture_creator = canvas.texture_creator();
-    let background_test = texture_creator.load_texture("./assets/game/sprites/bgrnd.png").unwrap();
+    let background_test = texture_creator.load_texture("./assets/game/bgrnd.png").unwrap();
+
+    // counter to count how many objects are loaded for the debug logs
+    let mut counter = 0;
 
     // initialise textures - new
     info!("Loading textures...");
+    // create hashmap
     let mut textures : HashMap<String, Texture> = HashMap::new();
+    // iterate through the assets directory
     for dir in WalkDir::new(".\\assets\\") {
         let path = String::from(dir.unwrap().path().to_str().unwrap());
-        if path.clone().ends_with(".png") {
+        // if the file is an image, save it - in future there will likely be a hashmap for other files, like animation data or other bits idk yet
+        if path.clone().to_lowercase().ends_with(".png") {
+            // create the resource location
             let mut rl = ResourceLocation::empty();
+
+            // split the path by \s
             let split : Vec<_> = path.split("\\").collect();
+
+            // name space is in ./assets/>>namespace<<, so it is the third element in the list
             let namespace = &split[2];
             rl.set_namespace(namespace.to_string());
+
+            // the path is just everything after the namespace
             let path = path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1];
             rl.set_path(path.to_string());
+
+            //load the texture
             let texture = texture_creator.load_texture(format!(".\\assets\\{}\\{}", namespace, path).as_str());
+
+            // insert the hashmap
             textures.insert(rl.clone().to_string(), texture.unwrap());
+
+            info!("Loaded texture : {}", rl.to_string());
+            counter+=1;
         }
     }
-    info!("Textures loaded!");
+    info!("{} textures loaded!", counter);
+
+    counter = 0;
+    // entirely data driven tile system
+
+    // initialise tiles
+    info!("Loading tiles...");
+
+    //create hashmap
+    let mut tiles: HashMap<String, Tile> = HashMap::new();
+    // get the immediate subdirectories for the name spaces
+    let namespaces = fs::read_dir(".\\data").unwrap();
+
+    // iterate through the namespaces
+    for namepath in namespaces {
+
+        // get the actual namespace
+        let mut namespace = String::from(namepath.unwrap().path().to_str().unwrap());
+        //                                            .\data\>>namespace<<
+        namespace = namespace.split("\\").collect::<Vec<_>>()[2].to_string();
+
+        if !namespace.clone().contains(".") {
+
+            for dir in WalkDir::new(format!(".\\data\\{}\\tiles\\", namespace.clone())) {
+                let path = String::from(dir.unwrap().path().to_str().unwrap());
+                // if the file is tile data, continue
+                if path.clone().to_lowercase().ends_with(".json") {
+                    // get the json file as a string
+                    let json = fs::read_to_string(path.clone()).unwrap();
+
+                    // read the values from the json file
+                    let name = gjson::get(json.as_str(), "name");
+
+                    let resource_location = ResourceLocation::new(
+                        &*namespace.clone(),
+                        path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1]);
+
+                    let texture = ResourceLocation::parse(
+                        gjson::get(json.as_str(), "resource_location")
+                        .to_string());
+
+                    let uv : (u32, u32) = (
+                        gjson::get(json.as_str(), "uv.x").to_string().parse::<u32>().unwrap(),
+                        gjson::get(json.as_str(), "uv.y").to_string().parse::<u32>().unwrap()
+                    );
+
+                    let ttype = TileType::parse(gjson::get(json.as_str(), "type").to_string());
+
+                    let size = TileSize::parse(gjson::get(json.as_str(), "size").to_string().as_str());
+
+
+                    let origin : (i32, i32) = (
+                        gjson::get(json.as_str(), "origin.x").to_string().parse::<i32>().unwrap(),
+                        gjson::get(json.as_str(), "origin.y").to_string().parse::<i32>().unwrap()
+                    );
+
+                    let collision : bool = gjson::get(json.as_str(), "collision").to_string().parse::<bool>().unwrap();
+                    let mut collison_box : Option<(u32,u32)>;
+
+                    if collision {
+                        collison_box = Some((
+                            gjson::get(json.as_str(), "collision_box.x").to_string().parse::<u32>().unwrap(),
+                            gjson::get(json.as_str(), "collision_box.y").to_string().parse::<u32>().unwrap()
+                        ));
+                    }
+                    else {
+                        collison_box = None
+                    }
+
+                    let tile = Tile::create(name.to_string(), resource_location.clone(), texture, uv, ttype, size, origin, collision, collison_box);
+                    tiles.insert(resource_location.to_string(), tile);
+
+                    info!("Loaded tile : {}", resource_location.to_string());
+
+                    counter += 1;
+                }
+
+            }
+        }
+    }
+
+    info!("{} tiles loaded!", counter);
 
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
@@ -105,7 +211,18 @@ fn main() {
         .unwrap()
         .set_coords((10.0, 10.0));
 
+    let _ = game
+        .mobiles
+        .get_mut(1)
+        .unwrap()
+        .lock()
+        .unwrap()
+        .set_coords((20.0, 20.0));
+
     let mut delta: f32 = 0.0;
+
+    // load the test level
+    game.current_level = Some(Level::create_test_level(&tiles));
 
     info!("Game instance initiated!");
 
@@ -116,7 +233,7 @@ fn main() {
 
         canvas
             .copy_ex(
-                &background_test,
+                &textures.get("game:background.png").unwrap(),
                 None,
                 Rect::new(0, half_scale_offset, 320, 180),
                 0.0,
