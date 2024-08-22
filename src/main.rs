@@ -138,34 +138,45 @@ fn main() {
                     let json = fs::read_to_string(path.clone()).unwrap();
 
                     // read the values from the json file
+
+                    // "name" : string
                     let name = gjson::get(json.as_str(), "name");
 
+                    // the ResourceLocation of this JSON file
                     let resource_location = ResourceLocation::new(
                         &*namespace.clone(),
                         path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1]);
 
+                    // "resource_location" : string
                     let texture = ResourceLocation::parse(
                         gjson::get(json.as_str(), "resource_location")
                         .to_string());
 
+                    // "uv" {"x" : int,  "y" : int}
                     let uv : (u32, u32) = (
                         gjson::get(json.as_str(), "uv.x").to_string().parse::<u32>().unwrap(),
                         gjson::get(json.as_str(), "uv.y").to_string().parse::<u32>().unwrap()
                     );
 
+                    // "type" : string    - might remove this bit as it may not be needed
                     let ttype = TileType::parse(gjson::get(json.as_str(), "type").to_string());
 
+                    // "size" : string
                     let size = TileSize::parse(gjson::get(json.as_str(), "size").to_string().as_str());
 
-
+                    // "origin" {"x" : int ,  "y" :  int }  - at the moment it refers to where the centre point of the sprite is,
+                    //                                  but will be changed to be the centre point of the hitbox, as the sprites
+                    //                                  should all have the origin of (0,0) to render correctly
                     let origin : (i32, i32) = (
                         gjson::get(json.as_str(), "origin.x").to_string().parse::<i32>().unwrap(),
                         gjson::get(json.as_str(), "origin.y").to_string().parse::<i32>().unwrap()
                     );
 
+                    // "collision" : bool
                     let collision : bool = gjson::get(json.as_str(), "collision").to_string().parse::<bool>().unwrap();
                     let mut collison_box : Option<(u32,u32)>;
 
+                    // "collision_box" {"x" : int ,  "y" :  int }
                     if collision {
                         collison_box = Some((
                             gjson::get(json.as_str(), "collision_box.x").to_string().parse::<u32>().unwrap(),
@@ -176,6 +187,7 @@ fn main() {
                         collison_box = None
                     }
 
+                    // create the tile and append it to the hashmap
                     let tile = Tile::create(name.to_string(), resource_location.clone(), texture, uv, ttype, size, origin, collision, collison_box);
                     tiles.insert(resource_location.to_string(), tile);
 
