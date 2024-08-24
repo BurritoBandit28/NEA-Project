@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use sdl2::keyboard::Keycode::N;
 use sdl2::rect::Rect;
 use crate::game::Game;
 use crate::render::AssetData;
@@ -6,26 +7,16 @@ use crate::resource_location::ResourceLocation;
 use crate::widget::Alignment;
 use crate::widget::Widget;
 
-pub struct SourceWidget {
+pub struct PlayWidget {
     selected : bool,
     asset_data: AssetData,
     asset_data_selected : AssetData,
     alignment: Alignment,
     coords : (i32, i32),
-    game : Option<*mut Game>
+    game : *mut Game
 }
 
-impl SourceWidget {
-    pub fn empty() -> Self {
-        Self {
-            selected : false,
-            asset_data : AssetData::empty(),
-            asset_data_selected : AssetData::empty(),
-            alignment : Alignment::NONE,
-            coords : (0,0),
-            game: None,
-        }
-    }
+impl PlayWidget {
 
     /*
     pub fn create(asset_data: AssetData, alignment: Alignment, x : i32, y : i32) -> Self {
@@ -39,9 +30,11 @@ impl SourceWidget {
      */
 }
 
-impl Widget for SourceWidget {
+impl Widget for PlayWidget {
     fn on_click(&mut self) {
-        let _ = open::that("https://github.com/BurritoBandit28/NEA-Project");
+        unsafe{(*self.game).load_test_level()}
+        unsafe{(*self.game).current_screen = None}
+        //(*self.game).unwrap().current_screen = None;
     }
 
     fn get_selected(&mut self) -> bool {
@@ -74,8 +67,9 @@ impl Widget for SourceWidget {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets\\source_widget")
+        ResourceLocation::new("game", "widgets\\play")
     }
+
 
     fn get_allignment(&mut self) -> Alignment {
         self.alignment.clone()
@@ -86,7 +80,7 @@ impl Widget for SourceWidget {
     }
 
     fn get_game(&mut self) {
-        self.game.unwrap();
+        self.game;
     }
 
     fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
@@ -99,16 +93,16 @@ impl Widget for SourceWidget {
             asset_data: AssetData {
                 uv: Some(Rect::new(0, 0, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
             },
             asset_data_selected: AssetData {
                 uv: Some(Rect::new(0, 20, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
             },
             alignment,
             coords: (x, y),
-            game : Some(game)
+            game
         };
         Box::new(ret)
     }

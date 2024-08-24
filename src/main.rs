@@ -17,6 +17,7 @@ use std::hash::Hash;
 use std::ops::DerefMut;
 use std::path::Path;
 use crate::entities::{enemy, player};
+use crate::screens::main_menu_screen;
 use crate::entity::Entity;
 use crate::game::Game;
 use num::clamp;
@@ -40,6 +41,7 @@ use crate::tile::{Tile, TileSize, TileType};
 use crate::widget::Alignment;
 use crate::widgets::source_widget;
 use crate::widgets::source_widget::SourceWidget;
+use crate::screens::main_menu_screen::MainMenuScreen;
 
 fn main() {
 
@@ -56,7 +58,7 @@ fn main() {
         sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / DIMENSIONS.0 as i32;
     let video_subsys = sdl_ctx.video().unwrap();
 
-    let dims = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / scale_factor, sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor);
+    let dims = ((sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / scale_factor) as u32, (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor) as u32);
 
     let scale_offset = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor as i32) - 180;
     let half_scale_offset = scale_offset / 2;
@@ -222,6 +224,8 @@ fn main() {
 
     let mut game = Game::initiate();
 
+    game.current_screen = Some(MainMenuScreen::create(&mut game));
+
     /*
     // test entities
     //EntityTest::create_player(&mut game);
@@ -249,8 +253,10 @@ fn main() {
 
     let mut delta: f32 = 0.0;
 
+    game.tiles = tiles;
+
     // load the test level
-    game.current_level = Some(Level::create_test_level(&tiles));
+    //game.current_level = Some(Level::create_test_level(&tiles));
 
     info!("Game instance initiated!");
 
@@ -282,10 +288,10 @@ fn main() {
             game.events.push(event.clone());
         }
 
-        game.cycle(delta);
+        game.cycle(delta, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32, dims);
 
         unsafe {
-            game.render(canvas, scale_factor, &textures);
+            game.render(canvas, scale_factor, &textures, dims);
         }
 
         //TODO

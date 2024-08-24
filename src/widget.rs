@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use log::warn;
 use sdl2::render::{Texture, WindowCanvas};
+use crate::game::Game;
 use crate::render;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
@@ -13,7 +14,7 @@ pub trait Widget {
     fn get_selected(&mut self) -> bool;
 
     #[must_use]
-    fn set_selected(&mut self);
+    fn set_selected(&mut self, tf : bool);
 
     #[must_use]
     fn get_screen_coordinates(&mut self) -> (i32, i32);
@@ -55,24 +56,19 @@ pub trait Widget {
     fn get_resource_location(&mut self) -> ResourceLocation;
 
     #[must_use]
-    fn register(&mut self, widgets: &mut HashMap<String, Box<dyn Widget>>);
-
-    #[must_use]
     fn get_allignment(&mut self) -> Alignment;
 
     #[must_use]
     fn set_allignment(&mut self, alignment: Alignment);
 
     #[must_use]
-    fn create(alignment: Alignment, x : i32, y : i32) -> Box<Self> where Self: Sized;
+    fn get_game(&mut self);
+
+    #[must_use]
+    fn create(alignment: Alignment, x : i32, y : i32 , game : *mut Game) -> Box<Self> where Self: Sized;
 
     fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32)) {
         let coords = self.correct_coords(dims);
-        let mut uv = self.get_asset_data().uv.unwrap();
-        if self.get_selected() {
-            uv.set_y((uv.height() + 1) as i32);
-            self.get_asset_data().uv = Some(uv)
-        }
         render::draw_pp_texture(coords.0, coords.1, &self.get_asset_data(), canvas, sf, textures)
     }
 }

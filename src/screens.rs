@@ -1,3 +1,3 @@
-pub(crate) mod data_driven_screen;
+pub(crate) mod main_menu_screen;
 
 use crate::screen::Screen;

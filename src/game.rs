@@ -1,13 +1,18 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
+use chrono::Month;
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
+use sdl2::mouse::MouseButton;
 use sdl2::render::{Texture, WindowCanvas};
+use crate::entities::{enemy, player};
 use crate::entity::{Entity};
 use crate::level::Level;
 use crate::render::draw_pp_texture;
 use crate::screen::Screen;
+use crate::tile::{Tile, TileSize};
 use crate::utils::order_sort;
+use crate::widget::Widget;
 
 // The data type that holds all game data.
 pub struct Game {
@@ -17,19 +22,24 @@ pub struct Game {
     pub held_keys : Vec<Scancode>,
     pub running : bool,
     pub current_level : Option<Level>,
-    pub current_screen : Option<Box<dyn Screen>>
+    pub current_screen : Option<Box<dyn Screen>>,
+    pub tiles :  HashMap<String, Tile>
     
 }
 
 impl Game {
 
     // what happens every game loop
-    pub fn cycle(&mut self, delta : f32) {
+    pub fn cycle(&mut self, delta : f32, mousex : u32, mousey : u32, dims : (u32, u32)) {
 
         // new (traits)
         for e in self.entities.iter() {
             e.lock().unwrap().physics(delta)
         }
+
+        let _ = if self.current_screen.is_some() {
+            self.current_screen.as_mut().unwrap().cycle(mousex, mousey, dims)
+        };
 
         for event in self.events.clone() {
             match event {
@@ -39,13 +49,53 @@ impl Game {
                     ..
                 } => {self.running=false},
 
+                Event::MouseButtonDown {
+                    mouse_btn : MouseButton::Left,
+                    ..
+                } => {
+
+                    if self.current_screen.is_some() {
+                        for wl in self.current_screen.as_mut().unwrap().get_widgets() {
+                            for w in wl {
+                                if w.get_selected() {
+                                    w.on_click()
+                                }
+                            }
+                        }
+                    }
+                }
+
                 _ => {}
             }
         }
 
     }
 
-    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>) {
+    pub fn load_test_level(&mut self) {
+
+    // test entities
+    player::Player::create(self);
+    enemy::Enemy::create(self);
+
+    let _ = self
+        .entities
+        .get_mut(0)
+        .unwrap()
+        .lock()
+        .unwrap()
+        .set_coords((10.0, 10.0));
+
+    let _ = self
+        .entities
+        .get_mut(1)
+        .unwrap()
+        .lock()
+        .unwrap()
+        .set_coords((20.0, 20.0));
+        self.current_level = Some(Level::create_test_level(&self.tiles));
+    }
+
+    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>, dims : (u32, u32)) {
 
 
         if !self.entities.is_empty() {
@@ -69,6 +119,11 @@ impl Game {
                 draw_pp_texture(screen_coords.0, screen_coords.1, &asset_data, canvas, sf, textures);
             }
         }
+        let scrn = &mut self.current_screen;
+
+        if scrn.is_some() {
+            scrn.as_mut().unwrap().render(textures, sf, canvas, dims);
+        }
 
     }
     
@@ -81,7 +136,8 @@ impl Game {
             held_keys : vec![],
             running : true,
             current_level : None,
-            current_screen : None
+            current_screen : None,
+            tiles: Default::default(),
         }
         
     }
