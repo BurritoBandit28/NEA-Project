@@ -4,7 +4,7 @@ use log::warn;
 use sdl2::event::{Event, EventPollIterator};
 use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
-use crate::entity::{Entity, Mobile, Renderable};
+use crate::entity::{Entity};
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
@@ -19,7 +19,8 @@ pub struct Player {
     velocity : (f32, f32),
     uuid : String,
     game : *mut Game,
-    health : f32
+    health : f32,
+    resource_location: ResourceLocation
 }
 
 impl Entity for Player {
@@ -35,9 +36,6 @@ impl Entity for Player {
         &self.health
     }
 
-}
-
-impl Renderable for Player {
     fn get_asset_data(&self) -> AssetData {
         AssetData {
             uv: self.asset_data.uv.clone(),
@@ -45,7 +43,27 @@ impl Renderable for Player {
             resource_location: self.asset_data.resource_location.clone(),
         }
     }
+
+    fn get_velocity(&mut self) -> (f32, f32) {
+        self.velocity
+    }
+
+    fn set_velocity(&mut self, velocity: (f32, f32)) {
+        self.velocity = velocity;
+    }
+    fn physics(&mut self, delta: f32) {
+        let game = self.game.clone();
+        unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
+        let x = self.get_coords().0 + self.get_velocity().0 * delta;
+        let y = self.get_coords().1 + self.get_velocity().1 * delta;
+        self.set_coords( (x,y) );
+    }
+
+    fn get_resource_location(&self) -> &ResourceLocation {
+        &self.resource_location
+    }
 }
+
 
 impl Player {
     pub fn create(game: &mut Game) {
@@ -62,13 +80,14 @@ impl Player {
                 velocity: (0.0, 0.0),
                 uuid: "player".to_string(),
                 game,
-                health : 20.0
+                health : 20.0,
+                resource_location : ResourceLocation::new("game", "entity\\player"),
             };
 
             let ret = Box::new(Mutex::new(player));
 
-            game.player = Some(game.mobiles.len());
-            game.mobiles.push(ret);
+            game.player = Some(game.entities.len());
+            game.entities.push(ret);
             //game.player = Some(ret.clone());
         }
         else {
@@ -81,17 +100,6 @@ impl Player {
         //self.set_velocity((0.0, 0.0));
         let mut ret_vel = (0.0, 0.0);
 
-        for event in events {
-            match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => unsafe{(*self.game).running = false},
-
-                _ => {}
-            }
-        }
 
         for key in held_keys {
             match key {
@@ -113,22 +121,5 @@ impl Player {
         //normalise_vec(&mut ret_vel);
         mul_vec(&mut ret_vel, 60.0);
         self.set_velocity(ret_vel);
-    }
-}
-
-impl Mobile for Player {
-    fn get_velocity(&mut self) -> (f32, f32) {
-        self.velocity
-    }
-
-    fn set_velocity(&mut self, velocity: (f32, f32)) {
-        self.velocity = velocity;
-    }
-    fn physics(&mut self, delta: f32) {
-        let game = self.game.clone();
-        unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
-        let x = self.get_coords().0 + self.get_velocity().0 * delta;
-        let y = self.get_coords().1 + self.get_velocity().1 * delta;
-        self.set_coords( (x,y) );
     }
 }

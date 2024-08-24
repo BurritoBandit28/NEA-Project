@@ -10,7 +10,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use num::integer::sqrt;
 use num::pow;
-use crate::entity::{Mobile, Renderable, Static};
+use crate::entity::{Entity,};
 
 pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
     vec.0 *= val;
@@ -27,18 +27,12 @@ pub fn normalise_vec(vec : &mut (f32, f32)) {
 
 
 
-pub(crate) fn order_sort(statics : &mut Vec<Box<Mutex<dyn Static>>>, mobiles : &mut Vec<Box<Mutex<dyn Mobile>>> /*todo Tile objects */) -> Vec<(usize, usize, f32)> {
+pub(crate) fn order_sort(entities : &mut Vec<Box<Mutex<dyn Entity>>>) -> Vec<(usize, usize, f32)> {
     //              list   index  amount
     let mut list : Vec<(usize, usize, f32)> = vec![];
     let mut iter = 0usize;
-    for s in statics {
+    for s in entities {
         list.push((0usize, iter, s.lock().unwrap().get_coords().1) );
-        iter+=1;
-    }
-
-    iter = 0usize;
-    for m in mobiles {
-        list.push((1usize, iter, m.lock().unwrap().get_coords().1) );
         iter+=1;
     }
 

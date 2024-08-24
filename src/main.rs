@@ -6,10 +6,15 @@ mod utils;
 mod level;
 mod tile;
 mod resource_location;
+mod screen;
+mod widgets;
+mod screens;
+mod widget;
 
 use std::collections::HashMap;
 use std::{env, fs};
 use std::hash::Hash;
+use std::ops::DerefMut;
 use std::path::Path;
 use crate::entities::{enemy, player};
 use crate::entity::Entity;
@@ -20,16 +25,21 @@ use sdl2::event::Event;
 use sdl2::image::LoadTexture;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Rect;
-use sdl2::sys::KeyPress;
 use std::time::Instant;
+use gjson::Value;
 use log::info;
 use sdl2::event::Event::KeyDown;
 use sdl2::render::Texture;
 use walkdir::WalkDir;
 use resource_location::ResourceLocation;
+use widget::Widget;
 use crate::level::Level;
 use crate::render::AssetData;
+use crate::screen::Screen;
 use crate::tile::{Tile, TileSize, TileType};
+use crate::widget::Alignment;
+use crate::widgets::source_widget;
+use crate::widgets::source_widget::SourceWidget;
 
 fn main() {
 
@@ -45,6 +55,8 @@ fn main() {
     let scale_factor =
         sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / DIMENSIONS.0 as i32;
     let video_subsys = sdl_ctx.video().unwrap();
+
+    let dims = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / scale_factor, sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor);
 
     let scale_offset = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor as i32) - 180;
     let half_scale_offset = scale_offset / 2;
@@ -209,6 +221,8 @@ fn main() {
     info!("Initiating game controller");
 
     let mut game = Game::initiate();
+
+    /*
     // test entities
     //EntityTest::create_player(&mut game);
     //EntityTest::create_obj(&mut game, (-30f32, 70f32));
@@ -216,7 +230,7 @@ fn main() {
     enemy::Enemy::create(&mut game);
 
     let _ = game
-        .mobiles
+        .entities
         .get_mut(0)
         .unwrap()
         .lock()
@@ -224,12 +238,14 @@ fn main() {
         .set_coords((10.0, 10.0));
 
     let _ = game
-        .mobiles
+        .entities
         .get_mut(1)
         .unwrap()
         .lock()
         .unwrap()
         .set_coords((20.0, 20.0));
+
+     */
 
     let mut delta: f32 = 0.0;
 
