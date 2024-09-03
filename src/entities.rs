@@ -1,5 +1,6 @@
 pub(crate) mod player;
 pub(crate) mod enemy;
+pub(crate) mod dummy;
 
 use crate::entity::{Entity};
 

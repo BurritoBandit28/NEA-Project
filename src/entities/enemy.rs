@@ -1,15 +1,17 @@
 use sdl2::rect::Rect;
 use std::sync::Mutex;
+use uuid::Uuid;
 use crate::entity::{Entity};
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
+use crate::utils::create_uuid;
 
 pub struct Enemy {
     coords: (f32, f32),
     pub asset_data: AssetData,
     velocity : (f32, f32),
-    uuid : String,
+    uuid : Uuid,
     game : *mut Game,
     resource_location: ResourceLocation,
     health : f32
@@ -57,11 +59,13 @@ impl Enemy {
             resource_location: ResourceLocation::new("game", "entity\\enemy.png"),
         };
 
+        let uuid = create_uuid();
+
         let mut entity = Self{
             coords: (0.0,0.0),
             asset_data,
             velocity: (0.0, 0.0),
-            uuid: "100".to_string(), // will be from hash function
+            uuid, // will be from hash function
             game,
             resource_location: ResourceLocation::new("game", "entity\\enemy"),
             health: 15.0,

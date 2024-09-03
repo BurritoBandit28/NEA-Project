@@ -225,6 +225,7 @@ fn main() {
     let mut game = Game::initiate();
 
     game.current_screen = Some(MainMenuScreen::create(&mut game));
+    game.sf = scale_factor;
 
     /*
     // test entities
@@ -291,19 +292,8 @@ fn main() {
         game.cycle(delta, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32, dims);
 
         unsafe {
-            game.render(canvas, scale_factor, &textures, dims);
+            game.render(canvas, scale_factor, &textures, dims, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32);
         }
-
-        //TODO
-        // gameplay_loop(event_pump)
-        render::draw_pp_texture(
-            event_pump.mouse_state().x() / scale_factor,
-            event_pump.mouse_state().y() / scale_factor,
-            &render::get_icons().lock().unwrap().get("cursor").unwrap(),
-            canvas,
-            scale_factor,
-            &textures
-        );
 
         canvas.present();
         delta = start.elapsed().as_secs_f32();

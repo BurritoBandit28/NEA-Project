@@ -4,6 +4,7 @@ use sdl2::render::{Canvas, Texture, WindowCanvas};
 use crate::render;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
+use crate::widgets::enum_widget::WidgetEnum;
 
 // might not keep this, not sure yet
 pub enum TileType {
@@ -61,6 +62,32 @@ impl TileSize {
         }
     }
 
+}
+
+impl WidgetEnum for TileSize {
+    fn get_as_string(&mut self) -> String {
+        match self {
+            TileSize::BIG => {String::from("big_tile")}
+            TileSize::MEDIUM => {String::from("medium_tile")}
+            TileSize::SMALL => {String::from("small_tile")}
+        }
+    }
+
+    fn get_from_index(&mut self, index: usize) -> Self {
+        match index {
+            1 => {TileSize::MEDIUM},
+            2=> {TileSize::SMALL}
+            _ => {TileSize::BIG}
+        }
+    }
+
+    fn count(&mut self) -> usize {
+        3usize
+    }
+
+    fn name(&mut self) -> String {
+        String::from("tile_size")
+    }
 }
 
 impl Clone for TileSize {

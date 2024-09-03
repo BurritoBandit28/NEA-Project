@@ -10,6 +10,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use num::integer::sqrt;
 use num::pow;
+use uuid::Uuid;
 use crate::entity::{Entity,};
 
 pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
@@ -113,4 +114,8 @@ pub fn init_logger() {
     // if you are trying to debug an issue and need more logs on then turn it off
     // once you are done.
     let _handle = log4rs::init_config(config);
+}
+
+pub fn create_uuid() -> Uuid {
+    Uuid::new_v4()
 }

@@ -39,6 +39,32 @@ impl SourceWidget {
      */
 }
 
+impl SourceWidget {
+    pub fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
+    where
+        Self: Sized
+    {
+
+        let ret = Self {
+            selected: false,
+            asset_data: AssetData {
+                uv: Some(Rect::new(0, 0, 20, 20)),
+                origin: (0, 0),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
+            },
+            asset_data_selected: AssetData {
+                uv: Some(Rect::new(0, 20, 20, 20)),
+                origin: (0, 0),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
+            },
+            alignment,
+            coords: (x, y),
+            game : Some(game)
+        };
+        Box::new(ret)
+    }
+}
+
 impl Widget for SourceWidget {
     fn on_click(&mut self) {
         let _ = open::that("https://github.com/BurritoBandit28/NEA-Project");
@@ -89,27 +115,5 @@ impl Widget for SourceWidget {
         self.game.unwrap();
     }
 
-    fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
-    where
-        Self: Sized
-    {
 
-        let ret = Self {
-            selected: false,
-            asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 20, 20)),
-                origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
-            },
-            asset_data_selected: AssetData {
-                uv: Some(Rect::new(0, 20, 20, 20)),
-                origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\source_widget.png"),
-            },
-            alignment,
-            coords: (x, y),
-            game : Some(game)
-        };
-        Box::new(ret)
-    }
 }

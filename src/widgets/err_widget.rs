@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use sdl2::keyboard::Keycode::N;
+use log::{error, warn};
 use sdl2::rect::Rect;
 use crate::game::Game;
 use crate::render::AssetData;
@@ -7,16 +7,26 @@ use crate::resource_location::ResourceLocation;
 use crate::widget::Alignment;
 use crate::widget::Widget;
 
-pub struct PlayWidget {
+pub struct ErrWidget {
     selected : bool,
     asset_data: AssetData,
     asset_data_selected : AssetData,
     alignment: Alignment,
     coords : (i32, i32),
-    game : *mut Game
+    game : Option<*mut Game>
 }
 
-impl PlayWidget {
+impl ErrWidget {
+    pub fn empty() -> Self {
+        Self {
+            selected : false,
+            asset_data : AssetData::empty(),
+            asset_data_selected : AssetData::empty(),
+            alignment : Alignment::NONE,
+            coords : (0,0),
+            game: None,
+        }
+    }
 
     /*
     pub fn create(asset_data: AssetData, alignment: Alignment, x : i32, y : i32) -> Self {
@@ -28,7 +38,9 @@ impl PlayWidget {
         }
     }
      */
+}
 
+impl ErrWidget {
     pub fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
     where
         Self: Sized
@@ -37,28 +49,26 @@ impl PlayWidget {
         let ret = Self {
             selected: false,
             asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 112, 39)),
+                uv: Some(Rect::new(0, 0, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\err_widget.png"),
             },
             asset_data_selected: AssetData {
-                uv: Some(Rect::new(0, 39, 112, 39)),
+                uv: Some(Rect::new(0, 20, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\err_widget.png"),
             },
             alignment,
             coords: (x, y),
-            game
+            game : Some(game)
         };
         Box::new(ret)
     }
 }
 
-impl Widget for PlayWidget {
+impl Widget for ErrWidget {
     fn on_click(&mut self) {
-        unsafe{(*self.game).load_test_level()}
-        unsafe{(*self.game).current_screen = None}
-        //(*self.game).unwrap().current_screen = None;
+        error!("you flipped up buddy");
     }
 
     fn get_selected(&mut self) -> bool {
@@ -91,9 +101,8 @@ impl Widget for PlayWidget {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets\\play")
+        ResourceLocation::new("game", "widgets\\err_widget")
     }
-
 
     fn get_allignment(&mut self) -> Alignment {
         self.alignment.clone()
@@ -104,8 +113,7 @@ impl Widget for PlayWidget {
     }
 
     fn get_game(&mut self) {
-        self.game;
+        self.game.unwrap();
     }
-
 
 }

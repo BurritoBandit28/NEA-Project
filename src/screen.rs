@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use sdl2::event::Event;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::game::Game;
 use crate::widget::Widget;
@@ -26,7 +27,7 @@ pub trait Screen {
     #[must_use]
     fn create(game : &mut Game) -> Box<Self> where Self: Sized;
 
-    fn cycle(&mut self, mousex : u32, mousey : u32, dims : (u32, u32)) {
+    fn cycle(&mut self, mousex : u32, mousey : u32, dims : (u32, u32), events: Vec<Event>) {
         for widgets in self.get_widgets() {
             for w in widgets {
                 let _ = w.set_selected(false);

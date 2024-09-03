@@ -4,11 +4,12 @@ use log::warn;
 use sdl2::event::{Event, EventPollIterator};
 use sdl2::EventPump;
 use sdl2::keyboard::{Keycode, Scancode};
+use uuid::Uuid;
 use crate::entity::{Entity};
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
-use crate::utils::{mul_vec, normalise_vec};
+use crate::utils::{create_uuid, mul_vec, normalise_vec};
 
 /// this file contains the code for the Player entity
 
@@ -17,7 +18,7 @@ pub struct Player {
     pub asset_data: AssetData,
     // hitbox : matrix,
     velocity : (f32, f32),
-    uuid : String,
+    uuid : Uuid,
     game : *mut Game,
     health : f32,
     resource_location: ResourceLocation
@@ -74,11 +75,13 @@ impl Player {
                 resource_location: ResourceLocation::new("game", "entity\\player.png"),
             };
 
+            let uuid = create_uuid();
+
             let mut player = Self {
                 coords: (0.0, 0.0),
                 asset_data,
                 velocity: (0.0, 0.0),
-                uuid: "player".to_string(),
+                uuid,
                 game,
                 health : 20.0,
                 resource_location : ResourceLocation::new("game", "entity\\player"),

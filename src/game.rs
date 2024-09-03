@@ -8,6 +8,7 @@ use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::{enemy, player};
 use crate::entity::{Entity};
 use crate::level::Level;
+use crate::render;
 use crate::render::draw_pp_texture;
 use crate::screen::Screen;
 use crate::tile::{Tile, TileSize};
@@ -23,8 +24,9 @@ pub struct Game {
     pub running : bool,
     pub current_level : Option<Level>,
     pub current_screen : Option<Box<dyn Screen>>,
-    pub tiles :  HashMap<String, Tile>
-    
+    pub tiles :  HashMap<String, Tile>,
+    pub draw_mouse : bool,
+    pub sf : i32
 }
 
 impl Game {
@@ -38,7 +40,7 @@ impl Game {
         }
 
         let _ = if self.current_screen.is_some() {
-            self.current_screen.as_mut().unwrap().cycle(mousex, mousey, dims)
+            self.current_screen.as_mut().unwrap().cycle(mousex, mousey, dims, self.events.clone())
         };
 
         for event in self.events.clone() {
@@ -95,7 +97,7 @@ impl Game {
         self.current_level = Some(Level::create_test_level(&self.tiles));
     }
 
-    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>, dims : (u32, u32)) {
+    pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>, dims : (u32, u32), mousex : u32, mousey : u32) {
 
 
         if !self.entities.is_empty() {
@@ -108,7 +110,7 @@ impl Game {
 
             let mut level = &mut self.current_level;
             if level.is_some() {
-                level.as_mut().unwrap().render(player_coords, textures, canvas, sf);
+                level.as_mut().unwrap().render(player_coords, textures, canvas, sf, false);
             }
 
             for x in order {
@@ -124,6 +126,16 @@ impl Game {
         if scrn.is_some() {
             scrn.as_mut().unwrap().render(textures, sf, canvas, dims);
         }
+        if self.draw_mouse {
+            draw_pp_texture(
+                mousex as i32,
+                mousey as i32,
+                &render::get_icons().lock().unwrap().get("cursor").unwrap(),
+                canvas,
+                sf,
+                &textures
+            );
+        }
 
     }
     
@@ -138,6 +150,8 @@ impl Game {
             current_level : None,
             current_screen : None,
             tiles: Default::default(),
+            draw_mouse : true,
+            sf : 6
         }
         
     }

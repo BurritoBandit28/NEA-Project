@@ -24,7 +24,7 @@ pub struct AssetData {
 impl AssetData {
     pub fn empty() -> Self {
         Self {
-            uv: None,
+            uv: Some(Rect::new(0,0,32,32)),
             origin: (0, 0),
             resource_location: ResourceLocation::empty()
         }

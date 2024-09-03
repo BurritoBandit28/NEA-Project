@@ -6,8 +6,11 @@ use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::widget::Alignment;
 use crate::widget::Widget;
+use crate::screens::main_menu_screen;
+use crate::screens::room_editor_screen::RoomEditorScreen;
+use crate::screen::Screen;
 
-pub struct PlayWidget {
+pub struct EditorWidget {
     selected : bool,
     asset_data: AssetData,
     asset_data_selected : AssetData,
@@ -16,7 +19,7 @@ pub struct PlayWidget {
     game : *mut Game
 }
 
-impl PlayWidget {
+impl EditorWidget {
 
     /*
     pub fn create(asset_data: AssetData, alignment: Alignment, x : i32, y : i32) -> Self {
@@ -28,7 +31,6 @@ impl PlayWidget {
         }
     }
      */
-
     pub fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
     where
         Self: Sized
@@ -37,14 +39,14 @@ impl PlayWidget {
         let ret = Self {
             selected: false,
             asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 112, 39)),
+                uv: Some(Rect::new(0, 0, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\editor.png"),
             },
             asset_data_selected: AssetData {
-                uv: Some(Rect::new(0, 39, 112, 39)),
+                uv: Some(Rect::new(0, 20, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui\\widgets\\editor.png"),
             },
             alignment,
             coords: (x, y),
@@ -54,10 +56,9 @@ impl PlayWidget {
     }
 }
 
-impl Widget for PlayWidget {
+impl Widget for EditorWidget {
     fn on_click(&mut self) {
-        unsafe{(*self.game).load_test_level()}
-        unsafe{(*self.game).current_screen = None}
+        unsafe{(*self.game).current_screen = Some(RoomEditorScreen::create(&mut *self.game))}
         //(*self.game).unwrap().current_screen = None;
     }
 

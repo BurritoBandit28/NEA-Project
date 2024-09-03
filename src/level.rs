@@ -5,17 +5,21 @@ use crate::resource_location::ResourceLocation;
 use crate::tile::Tile;
 
 pub struct Level {
-    tile_big : Vec<Vec<Option<Tile>>>,
-    tile_medium : Vec<Vec<Option<Tile>>>,
-    tile_small : Vec<Vec<Option<Tile>>>
+    pub(crate) tile_big : Vec<Vec<Option<Tile>>>,
+    pub(crate) tile_medium : Vec<Vec<Option<Tile>>>,
+    pub(crate) tile_small : Vec<Vec<Option<Tile>>>,
+    pub(crate) path_gird : Vec<Vec<Option<Tile>>>
 }
 
 impl Level {
 
-    pub fn render(&mut self, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32) {
+    pub fn render(&mut self, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32, debug : bool) {
         Self::render_tiles(self.tile_big.clone(), player_coords, texture, canvas, sf);
         Self::render_tiles(self.tile_medium.clone(), player_coords, texture, canvas, sf);
         Self::render_tiles(self.tile_small.clone(), player_coords, texture, canvas, sf);
+        if debug {
+            Self::render_tiles(self.path_gird.clone(), player_coords, texture, canvas, sf)
+        }
     }
 
     fn render_tiles(tiles : Vec<Vec<Option<Tile>>>, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32) {
@@ -54,6 +58,7 @@ impl Level {
                 vec![None, tile3.clone(), tile3.clone(), tile3.clone(), tile3.clone(), None],
                 vec![None, tile3.clone(), None, None, tile3.clone(), None],
             ],
+            path_gird : vec![]
         }
     }
 }

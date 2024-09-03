@@ -64,8 +64,6 @@ pub trait Widget {
     #[must_use]
     fn get_game(&mut self);
 
-    #[must_use]
-    fn create(alignment: Alignment, x : i32, y : i32 , game : *mut Game) -> Box<Self> where Self: Sized;
 
     fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32)) {
         let coords = self.correct_coords(dims);

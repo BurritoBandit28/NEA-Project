@@ -33,6 +33,10 @@ pub trait Entity {
         self.get_health() + amount;
     }
 
+    fn set_resource_location(&mut self, rl : ResourceLocation) {
+
+    }
+
     #[must_use]
     fn get_resource_location(&self) -> &ResourceLocation;
 
@@ -66,6 +70,10 @@ pub trait Entity {
     fn get_asset_data(&self) -> AssetData {
         warn!("No asset data provided for {}", self.get_resource_location().to_string());
         AssetData::empty()
+    }
+
+    fn set_asset_data(&mut self, ass : AssetData) {
+
     }
 
 
