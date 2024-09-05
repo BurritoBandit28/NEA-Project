@@ -26,7 +26,7 @@ impl Entity for DummyEntity {
     }
 
     fn get_health(&mut self) -> &f32 {
-        &69.420
+        &self.health
     }
 
     fn set_resource_location(&mut self, rl: ResourceLocation) {

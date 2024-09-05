@@ -88,8 +88,8 @@ impl Screen for RoomEditorScreen {
         unsafe {
             (*self.game).entities.get_mut(self.highlight_index).unwrap().lock().unwrap().set_coords(
                 (
-                    ((((mousex as i32 / self.selected_scale.get().0 as i32) - (dims.0 / 2) as i32) + (16 * (mousex as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (1i32 * mousex as i32 / self.selected_scale.get().0 as i32)) as f32,
-                    ((((mousey as i32 / self.selected_scale.get().0 as i32) - (dims.1 / 2) as i32) + (16 * (mousey as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (1i32 * mousey as i32 / self.selected_scale.get().0 as i32)) as f32,
+                    ((((mousex as i32 / self.selected_scale.get().0 as i32) - (dims.0 / 2) as i32) + (16 * (mousex as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousex as i32 / self.selected_scale.get().0 as i32)) as f32,
+                    ((((mousey as i32 / self.selected_scale.get().0 as i32) - (dims.1 / 2) as i32) + (16 * (mousey as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousey as i32 / self.selected_scale.get().0 as i32)) as f32,
                 )
             )
         }
