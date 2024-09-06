@@ -94,7 +94,7 @@ fn main() {
     let mut textures : HashMap<String, Texture> = HashMap::new();
     // iterate through the assets directory
     for dir in WalkDir::new("./assets/") {
-        let path = String::from(dir.unwrap().path().to_str().unwrap());
+        let mut path = String::from(dir.unwrap().path().to_str().unwrap()).replace("\\", "/");
         // if the file is an image, save it - in future there will likely be a hashmap for other files, like animation data or other bits idk yet
         if path.clone().to_lowercase().ends_with(".png") {
             // create the resource location
@@ -138,14 +138,14 @@ fn main() {
     for namepath in namespaces {
 
         // get the actual namespace
-        let mut namespace = String::from(namepath.unwrap().path().to_str().unwrap());
+        let mut namespace = String::from(namepath.unwrap().path().to_str().unwrap()).replace("\\", "/");
         //                                            .\data\>>namespace<<
         namespace = namespace.split("/").collect::<Vec<_>>()[2].to_string();
 
         if !namespace.clone().contains(".") {
 
             for dir in WalkDir::new(format!("./data/{}/tiles/", namespace.clone())) {
-                let path = String::from(dir.unwrap().path().to_str().unwrap());
+                let path = String::from(dir.unwrap().path().to_str().unwrap()).replace("\\", "/");
                 // if the file is tile data, continue
                 if path.clone().to_lowercase().ends_with(".json") {
                     // get the json file as a string
