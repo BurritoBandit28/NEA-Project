@@ -56,7 +56,7 @@ impl Enemy {
         let asset_data = AssetData {
             uv: Option::from(Rect::new(0, 0, 32, 32)),
             origin: (16, 22),
-            resource_location: ResourceLocation::new("game", "entity\\enemy.png"),
+            resource_location: ResourceLocation::new("game", "entity/enemy.png"),
         };
 
         let uuid = create_uuid();
@@ -67,7 +67,7 @@ impl Enemy {
             velocity: (0.0, 0.0),
             uuid, // will be from hash function
             game,
-            resource_location: ResourceLocation::new("game", "entity\\enemy"),
+            resource_location: ResourceLocation::new("game", "entity/enemy"),
             health: 15.0,
         };
         let ret = Box::new(Mutex::new(entity));

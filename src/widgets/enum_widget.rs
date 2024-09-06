@@ -73,7 +73,7 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
     fn get_asset_data(&mut self) -> AssetData {
 
         // using the name of the enums different values to get the textures allows dynamic generation of the resource location
-        let rl = ResourceLocation::new("game", format!("gui\\widgets\\enum\\{}\\{}.png", self.enum_type.name(), self.enum_type.get_as_string()).as_str());
+        let rl = ResourceLocation::new("game", format!("gui/widgets/enum/{}/{}.png", self.enum_type.name(), self.enum_type.get_as_string()).as_str());
         self.asset_data.resource_location = rl.clone();
         self.asset_data_selected.resource_location = rl;
 

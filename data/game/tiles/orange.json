@@ -1,7 +1,7 @@
 {
   "name": "Orange",
 
-  "resource_location" : "game:tiles\\orange\\face.png",
+  "resource_location" : "game:tiles/orange/face.png",
 
   "type" : "floor",
 

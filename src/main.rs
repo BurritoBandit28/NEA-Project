@@ -93,7 +93,7 @@ fn main() {
     // create hashmap
     let mut textures : HashMap<String, Texture> = HashMap::new();
     // iterate through the assets directory
-    for dir in WalkDir::new(".\\assets\\") {
+    for dir in WalkDir::new("./assets/") {
         let path = String::from(dir.unwrap().path().to_str().unwrap());
         // if the file is an image, save it - in future there will likely be a hashmap for other files, like animation data or other bits idk yet
         if path.clone().to_lowercase().ends_with(".png") {
@@ -101,18 +101,18 @@ fn main() {
             let mut rl = ResourceLocation::empty();
 
             // split the path by \s
-            let split : Vec<_> = path.split("\\").collect();
+            let split : Vec<_> = path.split("/").collect();
 
             // name space is in ./assets/>>namespace<<, so it is the third element in the list
             let namespace = &split[2];
             rl.set_namespace(namespace.to_string());
 
             // the path is just everything after the namespace
-            let path = path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1];
+            let path = path.split(format!("/{}/", namespace).as_str()).collect::<Vec<_>>()[1];
             rl.set_path(path.to_string());
 
             //load the texture
-            let texture = texture_creator.load_texture(format!(".\\assets\\{}\\{}", namespace, path).as_str());
+            let texture = texture_creator.load_texture(format!("./assets/{}/{}", namespace, path).as_str());
 
             // insert the hashmap
             textures.insert(rl.clone().to_string(), texture.unwrap());
@@ -132,7 +132,7 @@ fn main() {
     //create hashmap
     let mut tiles: HashMap<String, Tile> = HashMap::new();
     // get the immediate subdirectories for the name spaces
-    let namespaces = fs::read_dir(".\\data").unwrap();
+    let namespaces = fs::read_dir("./data").unwrap();
 
     // iterate through the namespaces
     for namepath in namespaces {
@@ -140,11 +140,11 @@ fn main() {
         // get the actual namespace
         let mut namespace = String::from(namepath.unwrap().path().to_str().unwrap());
         //                                            .\data\>>namespace<<
-        namespace = namespace.split("\\").collect::<Vec<_>>()[2].to_string();
+        namespace = namespace.split("/").collect::<Vec<_>>()[2].to_string();
 
         if !namespace.clone().contains(".") {
 
-            for dir in WalkDir::new(format!(".\\data\\{}\\tiles\\", namespace.clone())) {
+            for dir in WalkDir::new(format!("./data/{}/tiles/", namespace.clone())) {
                 let path = String::from(dir.unwrap().path().to_str().unwrap());
                 // if the file is tile data, continue
                 if path.clone().to_lowercase().ends_with(".json") {
@@ -159,7 +159,7 @@ fn main() {
                     // the ResourceLocation of this JSON file
                     let resource_location = ResourceLocation::new(
                         &*namespace.clone(),
-                        path.split(format!("\\{}\\", namespace).as_str()).collect::<Vec<_>>()[1]);
+                        path.split(format!("/{}/", namespace).as_str()).collect::<Vec<_>>()[1]);
 
                     // "resource_location" : string
                     let texture = ResourceLocation::parse(
@@ -224,8 +224,8 @@ fn main() {
 
     let mut game = Game::initiate();
 
-    game.current_screen = Some(MainMenuScreen::create(&mut game));
     game.sf = scale_factor;
+    game.current_screen = Some(MainMenuScreen::create(&mut game));
 
     /*
     // test entities
@@ -270,7 +270,7 @@ fn main() {
             .copy_ex(
                 &textures.get("game:background.png").unwrap(),
                 None,
-                Rect::new(0, half_scale_offset, 320, 180),
+                Rect::new(0, 0, dims.0, dims.1),
                 0.0,
                 None,
                 false,

@@ -50,7 +50,7 @@ impl Screen for RoomEditorScreen {
                                                    AssetData {
                                                        uv: Some(Rect::new(0,0,16, 16)),
                                                        origin: (0, 0),
-                                                       resource_location: ResourceLocation::new("game", "tiles\\highlight.png"),
+                                                       resource_location: ResourceLocation::new("game", "tiles/highlight.png"),
                                                    }
         );
 
@@ -88,8 +88,8 @@ impl Screen for RoomEditorScreen {
         unsafe {
             (*self.game).entities.get_mut(self.highlight_index).unwrap().lock().unwrap().set_coords(
                 (
-                    ((((mousex as i32 / self.selected_scale.get().0 as i32) - (dims.0 / 2) as i32) + (16 * (mousex as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousex as i32 / self.selected_scale.get().0 as i32)) as f32,
-                    ((((mousey as i32 / self.selected_scale.get().0 as i32) - (dims.1 / 2) as i32) + (16 * (mousey as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousey as i32 / self.selected_scale.get().0 as i32)) as f32,
+                    ((((mousex as i32 / self.selected_scale.get().0 as i32) - 160) + (self.selected_scale.get().0 * (mousex as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousex as i32 / self.selected_scale.get().0 as i32)) as f32,
+                    ((((mousey as i32 / self.selected_scale.get().0 as i32) - 90) + (self.selected_scale.get().0 * (mousey as i32 / self.selected_scale.get().0 as i32) as u32) as i32) - (mousey as i32 / self.selected_scale.get().0 as i32)) as f32,
                 )
             )
         }

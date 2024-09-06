@@ -39,10 +39,10 @@ impl Level {
 
     pub fn create_test_level(tiles : &HashMap<String, Tile>) -> Self {
 
-        let tile = Some(tiles.get("game:tiles\\wall.json").unwrap().clone());
-        let tile2 = Some(tiles.get("game:tiles\\look_i_can_name_this_what_i_want.json").unwrap().clone());
-        let tile3 = Some(tiles.get("game:tiles\\dirt.json").unwrap().clone());
-        let tile4 = Some(tiles.get("game:tiles\\orange.json").unwrap().clone());
+        let tile = Some(tiles.get("game:tiles/wall.json").unwrap().clone());
+        let tile2 = Some(tiles.get("game:tiles/look_i_can_name_this_what_i_want.json").unwrap().clone());
+        let tile3 = Some(tiles.get("game:tiles/dirt.json").unwrap().clone());
+        let tile4 = Some(tiles.get("game:tiles/orange.json").unwrap().clone());
 
         Self {
             tile_big: vec![

@@ -1,7 +1,7 @@
 {
   "name": "Dirt",
 
-  "resource_location" : "game:tiles\\dirt.png",
+  "resource_location" : "game:tiles/dirt.png",
 
   "type" : "wall",
 

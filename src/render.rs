@@ -61,7 +61,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(0, 0, 16, 16)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui/icons.png"),
             },
         );
         m.insert(
@@ -69,7 +69,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(32, 0, 16, 16)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui/icons.png"),
             },
         );
         m.insert(
@@ -77,7 +77,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             AssetData {
                 uv: Option::from(Rect::new(16, 0, 16, 16)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\icons.png"),
+                resource_location: ResourceLocation::new("game", "gui/icons.png"),
             }
         );
         Mutex::new(m)

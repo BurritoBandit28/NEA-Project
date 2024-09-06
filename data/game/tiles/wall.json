@@ -1,7 +1,7 @@
 {
   "name": "Test wall",
 
-  "resource_location" : "game:tiles\\wall.png",
+  "resource_location" : "game:tiles/wall.png",
 
   "type" : "wall",
 

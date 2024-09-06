@@ -51,12 +51,12 @@ impl ErrWidget {
             asset_data: AssetData {
                 uv: Some(Rect::new(0, 0, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\err_widget.png"),
+                resource_location: ResourceLocation::new("game", "gui/widgets/err_widget.png"),
             },
             asset_data_selected: AssetData {
                 uv: Some(Rect::new(0, 20, 20, 20)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\err_widget.png"),
+                resource_location: ResourceLocation::new("game", "gui/widgets/err_widget.png"),
             },
             alignment,
             coords: (x, y),
@@ -101,7 +101,7 @@ impl Widget for ErrWidget {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets\\err_widget")
+        ResourceLocation::new("game", "widgets/err_widget")
     }
 
     fn get_allignment(&mut self) -> Alignment {

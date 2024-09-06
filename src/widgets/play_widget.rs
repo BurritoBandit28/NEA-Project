@@ -39,12 +39,12 @@ impl PlayWidget {
             asset_data: AssetData {
                 uv: Some(Rect::new(0, 0, 112, 39)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui/widgets/play.png"),
             },
             asset_data_selected: AssetData {
                 uv: Some(Rect::new(0, 39, 112, 39)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui\\widgets\\play.png"),
+                resource_location: ResourceLocation::new("game", "gui/widgets/play.png"),
             },
             alignment,
             coords: (x, y),
@@ -91,7 +91,7 @@ impl Widget for PlayWidget {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets\\play")
+        ResourceLocation::new("game", "widgets/play")
     }
 
 

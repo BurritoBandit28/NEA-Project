@@ -72,7 +72,7 @@ impl Player {
             let asset_data = AssetData {
                 uv: Option::from(Rect::new(0, 0, 32, 32)),
                 origin: (16, 22),
-                resource_location: ResourceLocation::new("game", "entity\\player.png"),
+                resource_location: ResourceLocation::new("game", "entity/player.png"),
             };
 
             let uuid = create_uuid();
@@ -84,7 +84,7 @@ impl Player {
                 uuid,
                 game,
                 health : 20.0,
-                resource_location : ResourceLocation::new("game", "entity\\player"),
+                resource_location : ResourceLocation::new("game", "entity/player"),
             };
 
             let ret = Box::new(Mutex::new(player));
