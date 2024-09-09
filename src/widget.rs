@@ -64,6 +64,9 @@ pub trait Widget {
     #[must_use]
     fn get_game(&mut self);
 
+    fn return_enum_int(&mut self) -> Option<usize> {
+        None
+    }
 
     fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32)) {
         let coords = self.correct_coords(dims);

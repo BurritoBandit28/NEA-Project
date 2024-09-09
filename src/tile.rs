@@ -73,7 +73,7 @@ impl WidgetEnum for TileSize {
         }
     }
 
-    fn get_from_index(&mut self, index: usize) -> Self {
+    fn get_from_index(index: usize) -> Self {
         match index {
             1 => {TileSize::MEDIUM},
             2=> {TileSize::BIG}

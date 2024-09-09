@@ -15,10 +15,15 @@ pub struct EnumWidget<T : WidgetEnum> {
     coords : (i32, i32),
     asset_data: AssetData,
     asset_data_selected : AssetData,
-    game : *mut Game
+    game : *mut Game,
 }
 
-impl<T : WidgetEnum + 'static> EnumWidget<T> {
+impl<T : WidgetEnum + 'static + Clone> EnumWidget<T> {
+
+    fn get_value(&mut self) -> T {
+        self.enum_type.clone()
+    }
+
     pub fn create(alignment: Alignment, x: i32, y: i32, game: *mut Game, enumt : T) -> Box<dyn Widget> {
         let ret = Self {
             enum_type:enumt ,
@@ -37,6 +42,7 @@ impl<T : WidgetEnum + 'static> EnumWidget<T> {
             alignment,
             coords: (x, y),
             game
+
         };
         Box::new(ret)
     }
@@ -52,7 +58,7 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
         else {
             self.current_indx +=1;
         }
-        self.enum_type = self.enum_type.get_from_index(self.current_indx)
+        self.enum_type = T::get_from_index(self.current_indx);
     }
 
     fn get_selected(&mut self) -> bool {
@@ -90,7 +96,7 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", format!("widgets\\enum\\{}", self.enum_type.name()).as_str())
+        ResourceLocation::new("game", format!("widgets/enum/{}", self.enum_type.name()).as_str())
     }
 
     fn get_allignment(&mut self) -> Alignment {
@@ -105,6 +111,10 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
         // why is there a getter that returns nothing...? what was I on
     }
 
+    fn return_enum_int(&mut self) -> Option<usize> {
+        Some(self.current_indx)
+    }
+
 }
 
 pub trait WidgetEnum {
@@ -113,7 +123,7 @@ pub trait WidgetEnum {
     fn get_as_string(&mut self) -> String;
 
     // get a enum value from an integer
-    fn get_from_index(&mut self, index : usize) -> Self;
+    fn get_from_index(index : usize) -> Self;
 
     // how many enum values there are in the enum
     fn count(&mut self) -> usize;
