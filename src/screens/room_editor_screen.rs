@@ -144,8 +144,8 @@ impl Screen for RoomEditorScreen {
         let mouse_coord_x = mousex as i32 - (160 - px);
         let mouse_coord_y = mousey as i32 - (90 - py);
 
-        let mouse_x_fixed = if mouse_coord_x < 0 {(mouse_coord_x - 16)/ self.selected_scale.get().0 as i32} else { (mouse_coord_x)/ self.selected_scale.get().0 as i32 };
-        let mouse_y_fixed = if mouse_coord_y < 0 {(mouse_coord_y - 16)/ self.selected_scale.get().0 as i32} else { (mouse_coord_y)/ self.selected_scale.get().0 as i32 };
+        let mouse_x_fixed = if mouse_coord_x < 0 {(mouse_coord_x - self.selected_scale.get().0 as i32)/ self.selected_scale.get().0 as i32} else { (mouse_coord_x)/ self.selected_scale.get().0 as i32 };
+        let mouse_y_fixed = if mouse_coord_y < 0 {(mouse_coord_y - self.selected_scale.get().0 as i32)/ self.selected_scale.get().0 as i32} else { (mouse_coord_y)/ self.selected_scale.get().0 as i32 };
 
 
         let x = (((mouse_x_fixed) + (self.selected_scale.get().0 as i32 * mouse_x_fixed)) - mouse_x_fixed) as f32;
