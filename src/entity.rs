@@ -58,7 +58,6 @@ pub trait Entity {
     }
 
     // convert world space coordinates to screen coordinates.
-    // TODO add support for negative coordinates less than -160 and -90
     fn screen(&mut self, player_coords :  (f32, f32)) -> (i32, i32) {
         let x = self.get_coords().0;
         let y = self.get_coords().1;

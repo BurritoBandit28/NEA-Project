@@ -71,7 +71,7 @@ impl Screen for RoomEditorScreen {
                                                        resource_location: ResourceLocation::new("game", "tiles/highlight.png"),
                                                    }
         );
-        dummy_player.set_coords((160.0, 90.0));
+        dummy_player.set_coords((0.0, 0.0));
         game.entities.push(Box::new(Mutex::new(dummy_player)));
         game.player = Some(game.entities.len() -1 );
         let highlight_index = game.entities.len();
@@ -107,10 +107,7 @@ impl Screen for RoomEditorScreen {
 
     fn cycle(&mut self, mousex : u32, mousey : u32, dims : (u32, u32), events: Vec<Event>) {
 
-        let player_coords = unsafe{(*self.game).entities.get_mut((*self.game).player.unwrap()).unwrap().lock().unwrap().get_coords()};
 
-        let mouse_x_fixed = (mousex as i32) / self.selected_scale.get().0 as i32;
-        let mouse_y_fixed = (mousey as i32) / self.selected_scale.get().0 as i32;
 
         let mut scale_indx = 0usize;
 
@@ -136,8 +133,23 @@ impl Screen for RoomEditorScreen {
         }
         self.selected_scale = TileSize::get_from_index(scale_indx);
 
-        let x = (((mouse_x_fixed - 160) + (self.selected_scale.get().0 * mouse_x_fixed as u32) as i32) - mouse_x_fixed) as f32 + player_coords.0;
-        let y = (((mouse_y_fixed - 90) + (self.selected_scale.get().0 * mouse_y_fixed as u32) as i32) - mouse_y_fixed) as f32 + player_coords.1;
+        let mut player_coords = unsafe{(*self.game).entities.get_mut((*self.game).player.unwrap()).unwrap().lock().unwrap().get_coords()};
+
+        unsafe {(*self.game).entities.get_mut((*self.game).player.unwrap()).unwrap().lock().unwrap().set_coords((player_coords.0, player_coords.1))}
+
+        player_coords = unsafe{(*self.game).entities.get_mut((*self.game).player.unwrap()).unwrap().lock().unwrap().get_coords()};
+
+        let px = (if player_coords.0 < 0.0 {player_coords.0 - 1.0} else { player_coords.0 }) as i32;
+        let py = (if player_coords.1 < 0.0 {player_coords.1 - 1.0} else { player_coords.1 }) as i32;
+        let mouse_coord_x = mousex as i32 - (160 - px);
+        let mouse_coord_y = mousey as i32 - (90 - py);
+
+        let mouse_x_fixed = if mouse_coord_x < 0 {(mouse_coord_x - 16)/ self.selected_scale.get().0 as i32} else { (mouse_coord_x)/ self.selected_scale.get().0 as i32 };
+        let mouse_y_fixed = if mouse_coord_y < 0 {(mouse_coord_y - 16)/ self.selected_scale.get().0 as i32} else { (mouse_coord_y)/ self.selected_scale.get().0 as i32 };
+
+
+        let x = (((mouse_x_fixed) + (self.selected_scale.get().0 as i32 * mouse_x_fixed)) - mouse_x_fixed) as f32;
+        let y = (((mouse_y_fixed) + (self.selected_scale.get().0 as i32 * mouse_y_fixed)) - mouse_y_fixed) as f32;
 
         unsafe {
             let mut ass = (*self.game).entities.get_mut(self.highlight_index).unwrap().lock().unwrap().get_asset_data();

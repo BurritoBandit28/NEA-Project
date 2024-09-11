@@ -268,9 +268,9 @@ fn main() {
 
         canvas
             .copy_ex(
-                &textures.get("game:background.png").unwrap(),
+                &textures.get("game:test_grid_background.png").unwrap(),
                 None,
-                Rect::new(0, 0, dims.0, dims.1),
+                Rect::new(0, 0, 320 /*dims.0*/, 180 /*dims.1*/),
                 0.0,
                 None,
                 false,
