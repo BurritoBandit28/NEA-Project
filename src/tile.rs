@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use sdl2::keyboard::Scancode::S;
 use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture, WindowCanvas};
 use crate::render;
@@ -18,6 +19,13 @@ impl TileType {
             _ => {Self::FLOOR}
         }
     }
+
+    pub fn as_int(self) -> u32 {
+        match self {
+            TileType::WALL => {0}
+            TileType::FLOOR => {1}
+        }
+    }
 }
 
 impl Clone for TileType {
@@ -31,6 +39,12 @@ impl Clone for TileType {
 
 impl Copy for TileType {
 
+}
+
+impl PartialEq for TileType {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_int() == other.as_int()
+    }
 }
 
 pub enum TileSize {
@@ -153,6 +167,29 @@ impl Tile {
         }
     }
 
+    pub fn create_none(size : TileSize) -> Self {
+
+        let s = size.get();
+
+        let ass = AssetData {
+            uv : Some(Rect::new(0, 0, s.0, s.1)),
+            origin : (0,0),
+            resource_location : ResourceLocation::empty(),
+        };
+
+        Self {
+            name: "None".to_string(),
+            resource_location: ResourceLocation::new("game", "tiles/none"),
+            tile_type: TileType::WALL,
+            size,
+            origin: (0, 0),
+            collision: false,
+            collision_box: None,
+            asset_data: ass,
+        }
+
+    }
+
     fn screen(&self, coords : (i32, i32), player_coords :  (f32, f32)) -> (i32, i32) {
         let size = self.size.get();
         let scaled = (coords.0 * size.0 as i32, coords.1 * size.1 as i32);
@@ -168,6 +205,14 @@ impl Tile {
         let screen = self.screen(coords, player_coords);
         render::draw_pp_texture(screen.0, screen.1, &self.asset_data, canvas, sf, texture)
 
+    }
+
+    pub fn get_name(&mut self) -> String {
+        self.name.clone()
+    }
+
+    pub fn get_type(&mut self) -> TileType {
+        self.tile_type.clone()
     }
 
 }

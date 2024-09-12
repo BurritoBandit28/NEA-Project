@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use image::imageops::tile;
 use sdl2::render::{Canvas, Texture, WindowCanvas};
 use crate::resource_location::ResourceLocation;
-use crate::tile::Tile;
+use crate::tile::{Tile, TileSize};
 
 pub struct Level {
     pub(crate) tile_big : Vec<Vec<Option<Tile>>>,
@@ -20,6 +20,43 @@ impl Level {
         if debug {
             Self::render_tiles(self.path_gird.clone(), player_coords, texture, canvas, sf)
         }
+    }
+
+    pub fn get_tile(&mut self, size : TileSize, coordinates: (f32, f32)) -> Tile {
+        if coordinates.0 <= 0.0 || coordinates.1 <= 0.0 {
+            return Tile::create_none(size);
+        }
+
+        let x = coordinates.0 as u32 / size.get().0;
+        let y = coordinates.1 as u32 / size.get().1;
+
+        let mut tiles: Vec<Vec<Option<Tile>>> = Vec::new();
+        match size {
+            TileSize::BIG => {
+                tiles = self.tile_big.clone();
+            }
+            TileSize::MEDIUM => {
+                tiles = self.tile_medium.clone();
+            }
+            TileSize::SMALL => {
+                tiles = self.tile_small.clone();
+            }
+        }
+
+        let tiley = tiles.get(y as usize);
+
+        if tiley.is_some() {
+            let tile = tiley.unwrap().get(x as usize);
+            if tile.is_some() {
+                if tile.unwrap().is_some() {
+                    return tile.unwrap().clone().unwrap().clone();
+                };
+            };
+        }
+
+    Tile::create_none(size)
+
+
     }
 
     fn render_tiles(tiles : Vec<Vec<Option<Tile>>>, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32) {
@@ -60,5 +97,28 @@ impl Level {
             ],
             path_gird : vec![]
         }
+    }
+
+    pub fn create_demo_level(tiles : &HashMap<String, Tile>) -> Self {
+
+        let wall = Some(tiles.get("game:tiles/wall.json").unwrap().clone());
+        let floor = Some(tiles.get("game:tiles/floor.json").unwrap().clone());
+
+        let mut level = Self{
+            tile_big:vec![vec![]],
+            tile_medium:vec![vec![],vec![],vec![]],
+            tile_small:vec![],
+            path_gird:vec![]
+        };
+
+        let mut x = 0;
+        for x in 0..4 {
+            level.tile_big.get_mut(0).unwrap().push(wall.clone());
+            level.tile_medium.get_mut(2).unwrap().push(floor.clone());
+            level.tile_medium.get_mut(2).unwrap().push(floor.clone());
+        }
+
+        level
+
     }
 }

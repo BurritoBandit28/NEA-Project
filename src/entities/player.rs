@@ -1,3 +1,4 @@
+use std::cmp::PartialEq;
 use sdl2::rect::Rect;
 use std::sync::{Arc, Mutex};
 use log::warn;
@@ -9,6 +10,7 @@ use crate::entity::{Entity};
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
+use crate::tile::{TileSize, TileType};
 use crate::utils::{create_uuid, mul_vec, normalise_vec};
 
 /// this file contains the code for the Player entity
@@ -54,9 +56,17 @@ impl Entity for Player {
     }
     fn physics(&mut self, delta: f32) {
         let game = self.game.clone();
+
         unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
-        let x = self.get_coords().0 + self.get_velocity().0 * delta;
-        let y = self.get_coords().1 + self.get_velocity().1 * delta;
+
+        let prev_coords = self.coords;
+
+        let mut x = self.get_coords().0 + self.get_velocity().0 * delta;
+        let mut y = self.get_coords().1 + self.get_velocity().1 * delta;
+
+        x = if self.get_in_wall((x, prev_coords.1)) {prev_coords.0} else {x};
+        y = if self.get_in_wall((prev_coords.0, y)) {prev_coords.1} else {y};
+
         self.set_coords( (x,y) );
     }
 
@@ -96,6 +106,17 @@ impl Player {
         else {
             warn!("Player already exists in instance! @ index {}", game.player.unwrap())
         }
+    }
+
+    pub fn get_in_wall(&mut self, coords : (f32, f32)) -> bool {
+        let small_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::SMALL, coords).get_type()};
+        let medium_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::MEDIUM, coords).get_type()};
+        let big_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::BIG, coords).get_type()};
+
+        if small_type == TileType::WALL && medium_type == TileType::WALL && big_type == TileType::WALL {
+            return true
+        }
+        false
     }
 
     pub fn handle_input(&mut self, held_keys: Vec<Scancode>, events: Vec<Event>) {

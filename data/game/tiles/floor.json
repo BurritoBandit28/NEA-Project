@@ -1,0 +1,27 @@
+{
+  "name": "Floor Tiles",
+
+  "resource_location" : "game:tiles/shiny_floor.png",
+
+  "type" : "floor",
+
+  "uv" : {
+    "x" : 0,
+    "y" : 0
+  },
+
+  "size" : "medium",
+
+  "origin" : {
+    "x" : 0,
+    "y" : 0
+  },
+
+  "collision" : false,
+  "collision_box" : {
+    "x" : 32,
+    "y" : 32
+  },
+
+  "material" : "game:tile_ig_doesnt_matter_this_isnt_even_implemented.json"
+}

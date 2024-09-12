@@ -97,6 +97,30 @@ impl Game {
         self.current_level = Some(Level::create_test_level(&self.tiles));
     }
 
+    pub fn load_demo_level(&mut self) {
+
+        // test entities
+        player::Player::create(self);
+        enemy::Enemy::create(self);
+
+        let _ = self
+            .entities
+            .get_mut(0)
+            .unwrap()
+            .lock()
+            .unwrap()
+            .set_coords((16.0, 80.0));
+
+        let _ = self
+            .entities
+            .get_mut(1)
+            .unwrap()
+            .lock()
+            .unwrap()
+            .set_coords((20.0, 20.0));
+        self.current_level = Some(Level::create_demo_level(&self.tiles));
+    }
+
     pub unsafe fn render(&mut self, canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>, dims : (u32, u32), mousex : u32, mousey : u32) {
 
 

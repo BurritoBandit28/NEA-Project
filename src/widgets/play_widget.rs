@@ -56,7 +56,7 @@ impl PlayWidget {
 
 impl Widget for PlayWidget {
     fn on_click(&mut self) {
-        unsafe{(*self.game).load_test_level()}
+        unsafe{(*self.game).load_demo_level()}
         unsafe{(*self.game).current_screen = None}
         //(*self.game).unwrap().current_screen = None;
     }
