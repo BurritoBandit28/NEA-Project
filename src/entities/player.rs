@@ -23,7 +23,8 @@ pub struct Player {
     uuid : Uuid,
     game : *mut Game,
     health : f32,
-    resource_location: ResourceLocation
+    resource_location: ResourceLocation,
+    index : usize,
 }
 
 impl Entity for Player {
@@ -73,6 +74,10 @@ impl Entity for Player {
     fn get_resource_location(&self) -> &ResourceLocation {
         &self.resource_location
     }
+
+    fn get_index(&self) -> usize {
+        self.index
+    }
 }
 
 
@@ -95,11 +100,12 @@ impl Player {
                 game,
                 health : 20.0,
                 resource_location : ResourceLocation::new("game", "entity/player"),
+                index : game.entities.len()
             };
 
             let ret = Box::new(Mutex::new(player));
 
-            game.player = Some(game.entities.len());
+            game.player = Some(ret.lock().unwrap().index);
             game.entities.push(ret);
             //game.player = Some(ret.clone());
         }

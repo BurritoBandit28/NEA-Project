@@ -41,6 +41,9 @@ pub trait Entity {
     fn get_resource_location(&self) -> &ResourceLocation;
 
     #[must_use]
+    fn get_index(&self) -> usize;
+
+    #[must_use]
     fn get_velocity(&mut self) -> (f32,f32);
     #[must_use]
     fn set_velocity(&mut self, velocity : (f32, f32));

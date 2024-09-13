@@ -13,7 +13,8 @@ pub struct DummyEntity {
     uuid : Uuid,
     game : *mut Game,
     health : f32,
-    resource_location: ResourceLocation
+    resource_location: ResourceLocation,
+    index : usize,
 }
 
 impl Entity for DummyEntity {
@@ -35,6 +36,10 @@ impl Entity for DummyEntity {
 
     fn get_resource_location(&self) -> &ResourceLocation {
         &self.resource_location
+    }
+
+    fn get_index(&self) -> usize {
+        self.index
     }
 
     fn get_velocity(&mut self) -> (f32, f32) {
@@ -69,6 +74,7 @@ impl DummyEntity {
             game,
             health: 0.0,
             resource_location: rl,
+            index : game.entities.len()
         }
     }
 }
