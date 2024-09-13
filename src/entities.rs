@@ -1,7 +1,7 @@
 pub(crate) mod player;
 pub(crate) mod enemy;
 pub(crate) mod dummy;
-mod turret;
+pub(crate) mod turret;
 
 use crate::entity::{Entity};
 

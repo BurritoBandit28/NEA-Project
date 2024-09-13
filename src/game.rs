@@ -5,7 +5,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::mouse::MouseButton;
 use sdl2::render::{Texture, WindowCanvas};
-use crate::entities::{enemy, player};
+use crate::entities::{enemy, player, turret};
 use crate::entity::{Entity};
 use crate::level::Level;
 use crate::render;
@@ -73,6 +73,10 @@ impl Game {
 
     }
 
+    pub fn get_player(&mut self) -> &mut Box<Mutex<dyn Entity>> {
+        self.entities.get_mut(self.player.unwrap()).unwrap()
+    }
+
     pub fn load_test_level(&mut self) {
 
     // test entities
@@ -101,7 +105,8 @@ impl Game {
 
         // test entities
         player::Player::create(self);
-        enemy::Enemy::create(self);
+        turret::Turret::create(self);
+        //enemy::Enemy::create(self);
 
         let _ = self
             .entities
@@ -117,7 +122,7 @@ impl Game {
             .unwrap()
             .lock()
             .unwrap()
-            .set_coords((20.0, 20.0));
+            .set_coords((128.0, 36.0));
         self.current_level = Some(Level::create_demo_level(&self.tiles));
     }
 

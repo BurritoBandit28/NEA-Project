@@ -39,7 +39,7 @@ impl Entity for Player {
         &self.health
     }
 
-    fn get_asset_data(&self) -> AssetData {
+    fn get_asset_data(&mut self) -> AssetData {
         AssetData {
             uv: self.asset_data.uv.clone(),
             origin: self.asset_data.origin.clone(),

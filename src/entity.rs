@@ -37,6 +37,8 @@ pub trait Entity {
 
     }
 
+    fn tick(&mut self, delta : f32) {}
+
     #[must_use]
     fn get_resource_location(&self) -> &ResourceLocation;
 
@@ -55,6 +57,7 @@ pub trait Entity {
 
             self.set_coords((x, y))
         }
+        self.tick(delta)
     }
 
     // convert world space coordinates to screen coordinates.
@@ -66,7 +69,7 @@ pub trait Entity {
         (((160i32 - px) as f32 + x) as i32, ((90i32 - py ) as f32 + y) as i32)
     }
 
-    fn get_asset_data(&self) -> AssetData {
+    fn get_asset_data(&mut self) -> AssetData {
         warn!("No asset data provided for {}", self.get_resource_location().to_string());
         AssetData::empty()
     }

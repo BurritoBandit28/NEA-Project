@@ -45,7 +45,7 @@ impl Entity for DummyEntity {
         self.velocity = velocity
     }
 
-    fn get_asset_data(&self) -> AssetData {
+    fn get_asset_data(&mut self) -> AssetData {
         self.asset_data.clone()
     }
 
