@@ -14,7 +14,8 @@ pub struct Enemy {
     uuid : Uuid,
     game : *mut Game,
     resource_location: ResourceLocation,
-    health : f32
+    health : f32,
+    index : usize,
 }
 
 impl Entity for Enemy {
@@ -49,6 +50,10 @@ impl Entity for Enemy {
     fn get_resource_location(&self) -> &ResourceLocation {
         &self.resource_location
     }
+
+    fn get_index(&self) -> usize {
+        self.index
+    }
 }
 
 impl Enemy {
@@ -69,6 +74,7 @@ impl Enemy {
             game,
             resource_location: ResourceLocation::new("game", "entity/enemy"),
             health: 15.0,
+            index: game.entities.len(),
         };
         let ret = Box::new(Mutex::new(entity));
         game.entities.push(ret);
