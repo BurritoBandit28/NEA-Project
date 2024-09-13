@@ -16,7 +16,8 @@ pub struct Turret {
     game : *mut Game,
     health : f32,
     facing : Facing,
-    resource_location: ResourceLocation
+    resource_location: ResourceLocation,
+    index : usize
 }
 
 
@@ -39,6 +40,7 @@ impl Turret {
             resource_location: ResourceLocation::new("game", "entity/turret"),
             health: 15.0,
             facing: Facing::SE,
+            index : game.entities.len()
         };
         let ret = Box::new(Mutex::new(entity));
         game.entities.push(ret);
@@ -98,6 +100,10 @@ impl Entity for Turret {
 
     fn get_resource_location(&self) -> &ResourceLocation {
         &self.resource_location
+    }
+
+    fn get_index(&self) -> usize {
+        todo!()
     }
 
     fn get_velocity(&mut self) -> (f32, f32) {
