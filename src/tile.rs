@@ -1,3 +1,4 @@
+use std::cmp::PartialEq;
 use std::collections::HashMap;
 use sdl2::keyboard::Scancode::S;
 use sdl2::rect::Rect;
@@ -131,7 +132,11 @@ pub struct Tile {
     asset_data : AssetData
 }
 
-
+impl PartialEq for TileSize {
+    fn eq(&self, other: &Self) -> bool {
+        self.get().0 == other.get().0
+    }
+}
 
 impl Tile {
 
@@ -192,10 +197,9 @@ impl Tile {
 
     fn screen(&self, coords : (i32, i32), player_coords :  (f32, f32)) -> (i32, i32) {
         let size = self.size.get();
-        let scaled = (coords.0 * size.0 as i32, coords.1 * size.1 as i32);
 
-        let x = scaled.0;
-        let y = scaled.1;
+        let x = coords.0;
+        let y = coords.1;
         let px = (if player_coords.0 < 0.0 {player_coords.0 - 1.0} else { player_coords.0 }) as i32;
         let py = (if player_coords.1 < 0.0 {player_coords.1 - 1.0} else { player_coords.1 }) as i32;
         ((160i32 - px) + x, (90i32 - py ) + y)
@@ -209,6 +213,14 @@ impl Tile {
 
     pub fn get_name(&mut self) -> String {
         self.name.clone()
+    }
+
+    pub fn get_resource_location(&mut self) -> ResourceLocation {
+        self.resource_location.clone()
+    }
+
+    pub fn get_size(self) -> TileSize {
+        self.size
     }
 
     pub fn get_type(&mut self) -> TileType {

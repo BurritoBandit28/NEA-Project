@@ -17,7 +17,8 @@ pub struct Turret {
     health : f32,
     facing : Facing,
     resource_location: ResourceLocation,
-    index : usize
+    index : usize,
+    timer : f32
 }
 
 
@@ -40,7 +41,8 @@ impl Turret {
             resource_location: ResourceLocation::new("game", "entity/turret"),
             health: 15.0,
             facing: Facing::SE,
-            index : game.entities.len()
+            index : game.entities.len(),
+            timer : 0.0
         };
         let ret = Box::new(Mutex::new(entity));
         game.entities.push(ret);
@@ -60,20 +62,25 @@ impl Entity for Turret {
         self.coords = coords;
     }
 
-    fn get_health(&mut self) -> &f32 {
-        &self.health
+    fn get_health(&mut self) -> f32 {
+        self.health
+    }
+
+    fn change_health(&mut self, amount: f32) {
+        self.health += amount
     }
 
     fn tick(&mut self, delta: f32) {
+
         let game = unsafe { &mut *self.game };
         let player = game.get_player().get_mut().unwrap();
         let dist = f32::sqrt((player.get_coords().0 - self.coords.0)*(player.get_coords().0 - self.coords.0) + ((player.get_coords().1 - self.coords.1) * (player.get_coords().1 - self.coords.1)));
-        //println!("{}", dist);
+
         if player.get_coords().1 >= self.coords.1 && dist < 150.0 {
             let angle= f32::atan2(player.get_coords().1 - self.coords.1, player.get_coords().0 - self.coords.0);
             // 0 -> (1/12 * PI)
             if (0.0..0.263).contains(&angle) {
-                self.facing = Facing::E
+                self.facing = Facing::E;
             }
 
             // (1/12 * PI) -> (PI/2) - (1/12 * PI)
@@ -94,6 +101,18 @@ impl Entity for Turret {
             // (11/12 * PI) -> PI
             if (2.88..3.14).contains(&angle) {
                 self.facing = Facing::W
+            }
+
+            // handle firing
+            self.timer += delta;
+
+            /// Here there is a check to see if the timer has exceeded 5 seconds.
+            /// The reason why it doesn't say "``self.timer == 5.0``" is because the timer is a sum of the time in seconds between frames.
+            /// This means it could be that the timer never actually equals 5 seconds, but by using the greater than operator, the moment 5 seconds has passed, the operation is run.
+            if self.timer > 5.0 {
+                self.timer = 0.0;
+                let _ = player.change_health(-1.0);
+                game.play_sound(ResourceLocation::new("game", "sounds/entity/turret/turret_gunshot.ogg"))
             }
         }
     }

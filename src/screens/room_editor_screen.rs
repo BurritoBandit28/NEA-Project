@@ -7,7 +7,7 @@ use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::dummy::DummyEntity;
 use crate::entity::Entity;
 use crate::game::Game;
-use crate::level::Level;
+use crate::level::{Level, TileGraph};
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::screen::Screen;
@@ -31,13 +31,6 @@ impl RoomEditorScreen {
         let tile = Some(tiles.get("game:tiles/wall.json").unwrap().clone());
         let tile3 = Some(tiles.get("game:tiles/dirt.json").unwrap().clone());
         let tile4 = Some(tiles.get("game:tiles/orange.json").unwrap().clone());
-
-        unsafe {
-            (*self.game).current_level.as_mut().unwrap().tile_big.push(vec![tile]);
-            (*self.game).current_level.as_mut().unwrap().tile_medium.push(vec![None, None, tile4]);
-            (*self.game).current_level.as_mut().unwrap().tile_small.push(vec![None, None,None,None,None,None,tile3]);
-
-        }
     }
 
 }
@@ -80,10 +73,10 @@ impl Screen for RoomEditorScreen {
         let tile  = game.tiles.get("game:tiles/wall.json");
 
         let mut level = Level {
-            tile_big : vec![],
-            tile_medium: vec![],
-            tile_small: vec![],
-            path_gird: vec![],
+            tile_big: TileGraph::create(TileSize::BIG),
+            tile_medium: TileGraph::create(TileSize::MEDIUM),
+            tile_small: TileGraph::create(TileSize::SMALL),
+            tile_nav: TileGraph::create(TileSize::SMALL),
         };
 
         let mut ret = Self{

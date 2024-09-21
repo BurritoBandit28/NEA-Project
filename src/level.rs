@@ -1,24 +1,26 @@
+use std::cmp::PartialEq;
 use std::collections::HashMap;
 use image::imageops::tile;
+use log::warn;
 use sdl2::render::{Canvas, Texture, WindowCanvas};
 use crate::resource_location::ResourceLocation;
 use crate::tile::{Tile, TileSize};
 
 pub struct Level {
-    pub(crate) tile_big : Vec<Vec<Option<Tile>>>,
-    pub(crate) tile_medium : Vec<Vec<Option<Tile>>>,
-    pub(crate) tile_small : Vec<Vec<Option<Tile>>>,
-    pub(crate) path_gird : Vec<Vec<Option<Tile>>>
+    pub(crate) tile_big : TileGraph,
+    pub(crate) tile_medium : TileGraph,
+    pub(crate) tile_small : TileGraph,
+    pub(crate) tile_nav : TileGraph
 }
 
 impl Level {
 
     pub fn render(&mut self, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32, debug : bool) {
-        Self::render_tiles(self.tile_big.clone(), player_coords, texture, canvas, sf);
-        Self::render_tiles(self.tile_medium.clone(), player_coords, texture, canvas, sf);
-        Self::render_tiles(self.tile_small.clone(), player_coords, texture, canvas, sf);
+        self.tile_big.render(player_coords, texture, canvas, sf);
+        self.tile_medium.render(player_coords, texture, canvas, sf);
+        self.tile_small.render(player_coords, texture, canvas, sf);
         if debug {
-            Self::render_tiles(self.path_gird.clone(), player_coords, texture, canvas, sf)
+            self.tile_nav.render(player_coords, texture, canvas, sf)
         }
     }
 
@@ -27,98 +29,105 @@ impl Level {
             return Tile::create_none(size);
         }
 
-        let x = coordinates.0 as u32 / size.get().0;
-        let y = coordinates.1 as u32 / size.get().1;
-
-        let mut tiles: Vec<Vec<Option<Tile>>> = Vec::new();
         match size {
-            TileSize::BIG => {
-                tiles = self.tile_big.clone();
-            }
-            TileSize::MEDIUM => {
-                tiles = self.tile_medium.clone();
-            }
-            TileSize::SMALL => {
-                tiles = self.tile_small.clone();
-            }
+            TileSize::BIG => {self.tile_big.get_tile(coordinates.0 as i32, coordinates.1 as i32)}
+            TileSize::MEDIUM => {self.tile_medium.get_tile(coordinates.0 as i32, coordinates.1 as i32)}
+            TileSize::SMALL => {self.tile_small.get_tile(coordinates.0 as i32, coordinates.1 as i32)}
         }
-
-        let tiley = tiles.get(y as usize);
-
-        if tiley.is_some() {
-            let tile = tiley.unwrap().get(x as usize);
-            if tile.is_some() {
-                if tile.unwrap().is_some() {
-                    return tile.unwrap().clone().unwrap().clone();
-                };
-            };
-        }
-
-    Tile::create_none(size)
 
 
     }
 
-    fn render_tiles(tiles : Vec<Vec<Option<Tile>>>, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32) {
-        let mut x = 0;
-        let mut y = 0;
-        for tt in tiles.clone() {
-            x = 0;
-            for t in tt {
-                if t.is_some() {
-                    t.unwrap().render(texture, (x, y), canvas, sf, player_coords);
-                }
-                x += 1;
-            }
-            y += 1;
-        }
-    }
-
-    pub fn create_test_level(tiles : &HashMap<String, Tile>) -> Self {
-
-        let tile = Some(tiles.get("game:tiles/wall.json").unwrap().clone());
-        let tile2 = Some(tiles.get("game:tiles/look_i_can_name_this_what_i_want.json").unwrap().clone());
-        let tile3 = Some(tiles.get("game:tiles/dirt.json").unwrap().clone());
-        let tile4 = Some(tiles.get("game:tiles/orange.json").unwrap().clone());
-
-        Self {
-            tile_big: vec![
-                vec![tile.clone(), tile.clone(), tile.clone()],
-                vec![None, tile2.clone(), tile2.clone(), tile2.clone()],
-            ],
-            tile_medium: vec![vec![None,None,None,None,None,None,None,None,tile4.clone()]],
-            tile_small: vec![
-                vec![tile3.clone(),tile3.clone(), None, None, tile3.clone(),tile3.clone()],
-                vec![tile3.clone(),tile3.clone(), None, None, tile3.clone(),tile3.clone()],
-                vec![None, None, tile3.clone(), tile3.clone(), None, None],
-                vec![None, tile3.clone(), tile3.clone(), tile3.clone(), tile3.clone(), None],
-                vec![None, tile3.clone(), tile3.clone(), tile3.clone(), tile3.clone(), None],
-                vec![None, tile3.clone(), None, None, tile3.clone(), None],
-            ],
-            path_gird : vec![]
-        }
-    }
 
     pub fn create_demo_level(tiles : &HashMap<String, Tile>) -> Self {
 
-        let wall = Some(tiles.get("game:tiles/wall.json").unwrap().clone());
-        let floor = Some(tiles.get("game:tiles/floor.json").unwrap().clone());
+        let wall = (tiles.get("game:tiles/wall.json").unwrap().clone());
+        let floor = (tiles.get("game:tiles/floor.json").unwrap().clone());
+        let cardboard_box = (tiles.get("game:tiles/cardboard_box.json").unwrap().clone());
 
         let mut level = Self{
-            tile_big:vec![vec![]],
-            tile_medium:vec![vec![],vec![],vec![]],
-            tile_small:vec![],
-            path_gird:vec![]
+            tile_big: TileGraph::create(TileSize::BIG),
+            tile_medium: TileGraph::create(TileSize::MEDIUM),
+            tile_small: TileGraph::create(TileSize::SMALL),
+            tile_nav: TileGraph::create(TileSize::SMALL),
         };
 
         let mut x = 0;
         for x in 0..4 {
-            level.tile_big.get_mut(0).unwrap().push(wall.clone());
-            level.tile_medium.get_mut(2).unwrap().push(floor.clone());
-            level.tile_medium.get_mut(2).unwrap().push(floor.clone());
+            /*
+            level.tile_big_old.get_mut(0).unwrap().push(wall.clone());
+            level.tile_medium_old.get_mut(2).unwrap().push(floor.clone());
+            level.tile_medium_old.get_mut(2).unwrap().push(floor.clone());
+             */
+            level.tile_big.append(wall.clone(), (x, 0), vec![]);
+            level.tile_medium.append(floor.clone(), (x, 2), vec![]);
+
         }
 
+        //level.tile_small_old.insert(4, vec![None, None, Some(cardboard_box.clone())]);
+
         level
+    }
+
+
+
+}
+
+pub struct TileGraph {
+    nodes : HashMap<(i32, i32), Tile>,
+    connections : HashMap<(i32,i32), Vec<(i32,i32)>>,
+    tile_size: TileSize
+}
+
+impl TileGraph {
+    pub fn append(&mut self, tile : Tile,value : (i32, i32), connections : Vec<(i32, i32)>) {
+
+        if tile.clone().get_size() != self.tile_size {
+            warn!("Tried appending tile \"{}\" of size \"{}\" to the wrong tile graph!", tile.clone().get_resource_location().to_string(), tile.clone().get_size().get().0)
+        }
+        else {
+            self.nodes.insert(value, tile);
+            self.connections.insert(value, connections);
+        }
+    }
+
+    pub fn get_tile(&mut self, x : i32, y : i32) -> Tile {
+        let sf = self.tile_size.get().0 as i32;
+
+        let tx = x / sf;
+        let ty = y / sf;
+
+        let result = self.nodes.get(&(tx, ty));
+
+        if result.is_some() {
+            result.unwrap().clone()
+        }
+        else {
+            Tile::create_none(self.tile_size)
+        }
 
     }
+
+    pub fn render(&mut self, player_coords :  (f32, f32), texture : &HashMap<String, Texture>, canvas: &mut WindowCanvas, sf : i32) {
+
+        let tile_scale = self.tile_size.get().0 as i32;
+
+        for tile in self.nodes.clone() {
+            tile.1.render(texture, (tile.0.0 * tile_scale, tile.0.1 * tile_scale), canvas, sf, player_coords);
+        }
+    }
+
+    pub fn create(tile_size: TileSize) -> Self{
+        Self {
+            nodes: HashMap::new(),
+            connections: HashMap::new(),
+            tile_size,
+        }
+    }
+
+
+    pub fn path_to(&mut self, x : i32, y : i32, tx : i32, ty : i32) -> Vec<Tile> {
+        todo!()
+    }
+
 }

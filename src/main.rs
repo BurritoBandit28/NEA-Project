@@ -10,10 +10,14 @@ mod screen;
 mod widgets;
 mod screens;
 mod widget;
+mod sound;
 
+use crate::sound::Sound;
 use std::collections::HashMap;
 use std::{env, fs};
+use std::fs::File;
 use std::hash::Hash;
+use std::io::BufReader;
 use std::ops::DerefMut;
 use std::path::Path;
 use crate::entities::{enemy, player};
@@ -29,6 +33,7 @@ use sdl2::rect::Rect;
 use std::time::Instant;
 use gjson::Value;
 use log::info;
+use rodio::{Decoder, OutputStream, Source};
 use sdl2::event::Event::KeyDown;
 use sdl2::render::Texture;
 use walkdir::WalkDir;
@@ -122,6 +127,47 @@ fn main() {
         }
     }
     info!("{} textures loaded!", counter);
+
+    counter = 0;
+
+    info!("Loading sounds...");
+    // create hashmap
+    let mut sounds : HashMap<String, Sound> = HashMap::new();
+
+    // iterate through the assets directory
+    for dir in WalkDir::new("./assets/") {
+        let mut path = String::from(dir.unwrap().path().to_str().unwrap()).replace("\\", "/");
+        // if the file is a sound, save it
+        if path.clone().to_lowercase().ends_with(".ogg") {
+            // create the resource location
+            let mut rl = ResourceLocation::empty();
+
+            // split the path by \s
+            let split : Vec<_> = path.split("/").collect();
+
+            // name space is in ./assets/>>namespace<<, so it is the third element in the list
+            let namespace = &split[2];
+            rl.set_namespace(namespace.to_string());
+
+            // the path is just everything after the namespace
+            let path = path.split(format!("/{}/", namespace).as_str()).collect::<Vec<_>>()[1];
+            rl.set_path(path.to_string());
+
+            //load the sound
+            let sound = Sound {
+                path : format!("assets/{}/{}", namespace, path),
+                resource_location: rl.clone(),
+            };
+
+            // insert the hashmap
+            sounds.insert(rl.clone().to_string(), sound);
+
+
+            info!("Loaded sound : {}", rl.to_string());
+            counter+=1;
+        }
+    }
+    info!("{} sounds loaded!", counter);
 
     counter = 0;
     // entirely data driven tile system
@@ -255,6 +301,8 @@ fn main() {
     let mut delta: f32 = 0.0;
 
     game.tiles = tiles;
+    game.sounds = sounds;
+    game.dims = dims;
 
     // load the test level
     //game.current_level = Some(Level::create_test_level(&tiles));

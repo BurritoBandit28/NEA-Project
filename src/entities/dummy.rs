@@ -26,8 +26,12 @@ impl Entity for DummyEntity {
         self.coords = coords
     }
 
-    fn get_health(&mut self) -> &f32 {
-        &self.health
+    fn get_health(&mut self) -> f32 {
+        self.health
+    }
+
+    fn change_health(&mut self, amount: f32) {
+        todo!()
     }
 
     fn set_resource_location(&mut self, rl: ResourceLocation) {

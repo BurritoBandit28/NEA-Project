@@ -1,6 +1,12 @@
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::BufReader;
+use std::ops::DerefMut;
 use std::sync::Mutex;
 use chrono::Month;
+use kira::manager::{AudioManager, AudioManagerSettings, DefaultBackend};
+use kira::sound::static_sound::StaticSoundData;
+use rodio::{Decoder, OutputStream, Sink, Source};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::mouse::MouseButton;
@@ -8,9 +14,11 @@ use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::{enemy, player, turret};
 use crate::entity::{Entity};
 use crate::level::Level;
-use crate::render;
+use crate::{render, sound};
 use crate::render::draw_pp_texture;
+use crate::resource_location::ResourceLocation;
 use crate::screen::Screen;
+use crate::sound::Sound;
 use crate::tile::{Tile, TileSize};
 use crate::utils::order_sort;
 use crate::widget::Widget;
@@ -25,8 +33,10 @@ pub struct Game {
     pub current_level : Option<Level>,
     pub current_screen : Option<Box<dyn Screen>>,
     pub tiles :  HashMap<String, Tile>,
+    pub sounds : HashMap<String, Sound>,
     pub draw_mouse : bool,
-    pub sf : i32
+    pub sf : i32,
+    pub dims : (u32,u32)
 }
 
 impl Game {
@@ -75,30 +85,6 @@ impl Game {
 
     pub fn get_player(&mut self) -> &mut Box<Mutex<dyn Entity>> {
         self.entities.get_mut(self.player.unwrap()).unwrap()
-    }
-
-    pub fn load_test_level(&mut self) {
-
-    // test entities
-    player::Player::create(self);
-    enemy::Enemy::create(self);
-
-    let _ = self
-        .entities
-        .get_mut(0)
-        .unwrap()
-        .lock()
-        .unwrap()
-        .set_coords((10.0, 10.0));
-
-    let _ = self
-        .entities
-        .get_mut(1)
-        .unwrap()
-        .lock()
-        .unwrap()
-        .set_coords((20.0, 20.0));
-        self.current_level = Some(Level::create_test_level(&self.tiles));
     }
 
     pub fn load_demo_level(&mut self) {
@@ -167,6 +153,11 @@ impl Game {
         }
 
     }
+
+    pub fn play_sound(&mut self, resource_location : ResourceLocation) {
+        let sound_data = StaticSoundData::from_file(&self.sounds.get(&resource_location.to_string()).unwrap().path).unwrap();
+        sound::get_audio_manager().lock().unwrap().play(sound_data.clone()).unwrap();
+    }
     
     pub fn initiate() -> Self {
         
@@ -179,8 +170,10 @@ impl Game {
             current_level : None,
             current_screen : None,
             tiles: Default::default(),
+            sounds : Default::default(),
             draw_mouse : true,
-            sf : 6
+            sf : 6,
+            dims: (0,0)
         }
         
     }

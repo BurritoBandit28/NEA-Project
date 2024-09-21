@@ -43,8 +43,8 @@ impl Entity for Enemy {
         self.velocity = velocity;
     }
 
-    fn get_health(&mut self) -> &f32 {
-        &self.health
+    fn get_health(&mut self) -> f32 {
+        self.health
     }
 
     fn get_resource_location(&self) -> &ResourceLocation {
@@ -53,6 +53,10 @@ impl Entity for Enemy {
 
     fn get_index(&self) -> usize {
         self.index
+    }
+
+    fn change_health(&mut self, amount: f32) {
+        todo!()
     }
 }
 

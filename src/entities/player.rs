@@ -36,8 +36,8 @@ impl Entity for Player {
         self.coords = coords;
     }
 
-    fn get_health(&mut self) -> &f32 {
-        &self.health
+    fn get_health(&mut self) -> f32 {
+        self.health
     }
 
     fn get_asset_data(&mut self) -> AssetData {
@@ -77,6 +77,10 @@ impl Entity for Player {
 
     fn get_index(&self) -> usize {
         self.index
+    }
+
+    fn change_health(&mut self, amount: f32) {
+        self.health += amount;
     }
 }
 

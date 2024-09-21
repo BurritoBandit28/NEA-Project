@@ -4,6 +4,9 @@ use sdl2::rect::Rect;
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
+use crate::screen::Screen;
+use crate::screens::hud_screen::HudScreen;
+use crate::screens::room_editor_screen::RoomEditorScreen;
 use crate::widget::Alignment;
 use crate::widget::Widget;
 
@@ -57,7 +60,7 @@ impl PlayWidget {
 impl Widget for PlayWidget {
     fn on_click(&mut self) {
         unsafe{(*self.game).load_demo_level()}
-        unsafe{(*self.game).current_screen = None}
+        unsafe{(*self.game).current_screen = Some(HudScreen::create(&mut *self.game))}
         //(*self.game).unwrap().current_screen = None;
     }
 

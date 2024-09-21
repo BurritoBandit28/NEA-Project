@@ -27,11 +27,10 @@ pub trait Entity {
     fn set_coords(&mut self, coords : (f32, f32));
 
     #[must_use]
-    fn get_health(&mut self) -> &f32;
+    fn get_health(&mut self) -> f32;
 
-    fn change_health(&mut self, amount : f32) {
-        self.get_health() + amount;
-    }
+    #[must_use]
+    fn change_health(&mut self, amount : f32);
 
     fn set_resource_location(&mut self, rl : ResourceLocation) {
 
