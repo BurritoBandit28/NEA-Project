@@ -6,7 +6,6 @@ use std::sync::Mutex;
 use chrono::Month;
 use kira::manager::{AudioManager, AudioManagerSettings, DefaultBackend};
 use kira::sound::static_sound::StaticSoundData;
-use rodio::{Decoder, OutputStream, Sink, Source};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::mouse::MouseButton;
@@ -15,6 +14,7 @@ use crate::entities::{enemy, player, turret};
 use crate::entity::{Entity};
 use crate::level::Level;
 use crate::{render, sound};
+use crate::entities::floaty_bomb::FloatyBomb;
 use crate::render::draw_pp_texture;
 use crate::resource_location::ResourceLocation;
 use crate::screen::Screen;
@@ -83,8 +83,8 @@ impl Game {
 
     }
 
-    pub fn get_player(&mut self) -> &mut Box<Mutex<dyn Entity>> {
-        self.entities.get_mut(self.player.unwrap()).unwrap()
+    pub fn get_player(&mut self) -> Option<&mut Box<Mutex<dyn Entity>>> {
+        self.entities.get_mut(self.player.unwrap())
     }
 
     pub fn load_demo_level(&mut self) {
@@ -92,6 +92,8 @@ impl Game {
         // test entities
         player::Player::create(self);
         turret::Turret::create(self);
+        FloatyBomb::create(self, (86.0,40.0));
+        //FloatyBomb::create(self, (120.0,40.0));
         //enemy::Enemy::create(self);
 
         let _ = self

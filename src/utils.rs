@@ -8,7 +8,7 @@ use log4rs::Config;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
-use num::integer::sqrt;
+use num::integer::{sqrt, Roots};
 use num::pow;
 use uuid::Uuid;
 use crate::entity::{Entity,};
@@ -19,11 +19,14 @@ pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
 }
 
 // broken : todo fix
-pub fn normalise_vec(vec : &mut (f32, f32)) {
+pub fn normalise_vec(vec : (f32, f32)) -> (f32,f32) {
     // get the square root of the object
-    let mag = f32::sqrt(vec.0 * vec.0) + (vec.1 * vec.1);
-    vec.0 /= mag;
-    vec.1 /= mag;
+    let mag = f32::sqrt((vec.0 * vec.0) + (vec.1 * vec.1));
+    if mag == 0.0 {
+        return (0.0, 0.0)
+    }
+    (vec.0 / mag, vec.1 / mag)
+
 }
 
 
@@ -118,5 +121,12 @@ pub fn init_logger() {
 
 pub fn create_uuid() -> Uuid {
     Uuid::new_v4()
+}
+
+pub fn get_dist(a : &(f32, f32), b : &(f32, f32)) -> u32 {
+    let a_squared = (a.0 + b.0) * (a.0 + b.0);
+    let b_squared = (a.1 + b.1) * (a.1 + b.1);
+    let c_squared = a_squared + b_squared;
+    u32::sqrt(&(c_squared as u32))
 }
 

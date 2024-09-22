@@ -73,7 +73,13 @@ impl Entity for Turret {
     fn tick(&mut self, delta: f32) {
 
         let game = unsafe { &mut *self.game };
-        let player = game.get_player().get_mut().unwrap();
+        let mut player : &mut dyn Entity;
+        if game.get_player().is_some() {
+            player = game.get_player().unwrap().get_mut().unwrap()
+        }
+        else {
+            return;
+        }
         let dist = f32::sqrt((player.get_coords().0 - self.coords.0)*(player.get_coords().0 - self.coords.0) + ((player.get_coords().1 - self.coords.1) * (player.get_coords().1 - self.coords.1)));
 
         if player.get_coords().1 >= self.coords.1 && dist < 150.0 {
@@ -109,7 +115,7 @@ impl Entity for Turret {
             /// Here there is a check to see if the timer has exceeded 5 seconds.
             /// The reason why it doesn't say "``self.timer == 5.0``" is because the timer is a sum of the time in seconds between frames.
             /// This means it could be that the timer never actually equals 5 seconds, but by using the greater than operator, the moment 5 seconds has passed, the operation is run.
-            if self.timer > 5.0 {
+            if self.timer > 0.5 {
                 self.timer = 0.0;
                 let _ = player.change_health(-1.0);
                 game.play_sound(ResourceLocation::new("game", "sounds/entity/turret/turret_gunshot.ogg"))

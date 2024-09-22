@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
 use sdl2::keyboard::Keycode::D;
+use sdl2::mouse::MouseButton;
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::entities::dummy::DummyEntity;
@@ -22,7 +24,9 @@ pub struct RoomEditorScreen {
     //editor_level : Level,
     selected_scale : TileSize,
     centre : (f32, f32),
-    highlight_index : usize
+    highlight_index : usize,
+    tiles : HashMap<String, Tile>,
+
 }
 
 impl RoomEditorScreen {
@@ -86,7 +90,8 @@ impl Screen for RoomEditorScreen {
             //editor_level : level,
             selected_scale : TileSize::SMALL,
             centre : (0.0, 0.0),
-            highlight_index
+            highlight_index,
+            tiles : game.tiles.clone()
         };
 
         ret.add_widget(EnumWidget::create(Alignment::TOP, 6, 18, game, TileSize::SMALL),0 ,0);
@@ -165,5 +170,27 @@ impl Screen for RoomEditorScreen {
                 )
             )
         }
+
+        for e in events {
+            match e {
+                Event::KeyDown {
+                    keycode: Some(Keycode::B),
+                    ..
+                } => {
+
+                },
+                Event::MouseButtonDown {
+                    mouse_btn : MouseButton::Left,
+                    ..
+                } => {
+                    unsafe {(*self.game).current_level.as_mut().unwrap().tile_small.append_from_wolrd_space(
+                        self.tiles.get(&ResourceLocation::new("game", "tiles/cardboard_box.json").to_string()).unwrap().clone(),
+                        (x as i32,y as i32),
+                        vec![])}
+                }
+                _ => {}
+            }
+        }
+
     }
 }

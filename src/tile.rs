@@ -195,6 +195,28 @@ impl Tile {
 
     }
 
+    pub fn create_nav() -> Self {
+
+
+        let ass = AssetData {
+            uv : Some(Rect::new(0, 0, 16, 16)),
+            origin : (0,0),
+            resource_location : ResourceLocation::empty(),
+        };
+
+        Self {
+            name: "None".to_string(),
+            resource_location: ResourceLocation::new("game", "tiles/none"),
+            tile_type: TileType::FLOOR,
+            size : TileSize::SMALL,
+            origin: (0, 0),
+            collision: false,
+            collision_box: None,
+            asset_data: ass,
+        }
+
+    }
+
     fn screen(&self, coords : (i32, i32), player_coords :  (f32, f32)) -> (i32, i32) {
         let size = self.size.get();
 

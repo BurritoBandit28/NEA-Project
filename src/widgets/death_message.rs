@@ -9,17 +9,15 @@ use crate::resource_location::ResourceLocation;
 use crate::widget::{Alignment, Widget};
 use crate::widgets::play_widget::PlayWidget;
 
-pub struct PlayerHealthWidget {
+pub struct DeathMessage {
     selected : bool,
     asset_data: AssetData,
-    asset_data_selected : AssetData,
     alignment: Alignment,
     coords : (i32, i32),
     game : *mut Game,
-    half : bool
 }
 
-impl PlayerHealthWidget {
+impl DeathMessage {
     pub fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
     where
         Self: Sized
@@ -28,25 +26,19 @@ impl PlayerHealthWidget {
         let ret = Self {
             selected: false,
             asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 15, 15)),
+                uv: Some(Rect::new(0, 0, 320, 180)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui/hud/hearts.png"),
-            },
-            asset_data_selected: AssetData {
-                uv: Some(Rect::new(0, 16, 15, 15)),
-                origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "gui/hud/hearts.png"),
+                resource_location: ResourceLocation::new("game", "misc/you_died.png"),
             },
             alignment,
             coords: (x, y),
-            game,
-            half : false
+            game
         };
         Box::new(ret)
     }
 }
 
-impl Widget for PlayerHealthWidget {
+impl Widget for DeathMessage {
     fn on_click(&mut self) {}
 
     fn get_selected(&mut self) -> bool {
@@ -65,12 +57,7 @@ impl Widget for PlayerHealthWidget {
     }
 
     fn get_asset_data(&mut self) -> AssetData {
-        if self.half {
-            self.asset_data_selected.clone()
-        }
-        else {
-            self.asset_data.clone()
-        }
+        self.asset_data.clone()
     }
 
     fn set_asset_data(&mut self, ass: AssetData) {
@@ -78,7 +65,7 @@ impl Widget for PlayerHealthWidget {
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets/player_health")
+        ResourceLocation::new("game", "widgets/dEATHDEATHDEATH")
     }
 
     fn get_allignment(&mut self) -> Alignment {
@@ -93,22 +80,5 @@ impl Widget for PlayerHealthWidget {
     fn get_game(&mut self) {
     }
 
-    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32)) {
-        let game = unsafe { &mut *self.game };
-        let health = clamp(game.get_player().unwrap().get_mut().unwrap().get_health(), 0.0, 20.0);
-        let coords = self.correct_coords(dims);
-        self.half = false;
-        if health > 0.0 {
-            for mut h in 0..(health/2.0).ceil() as u32 {
-                if health % 2.0 != 0.0  && h+1 == (health/2.0).ceil() as u32 {
-                    self.half = true;
-                }
-                render::draw_pp_texture(coords.0 - (14 * (h+1)) as i32, coords.1, &self.get_asset_data(), canvas, sf, textures)
-            }
-        }
-
-
-
-    }
 
 }

@@ -33,7 +33,6 @@ use sdl2::rect::Rect;
 use std::time::Instant;
 use gjson::Value;
 use log::info;
-use rodio::{Decoder, OutputStream, Source};
 use sdl2::event::Event::KeyDown;
 use sdl2::render::Texture;
 use walkdir::WalkDir;

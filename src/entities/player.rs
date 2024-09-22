@@ -10,6 +10,8 @@ use crate::entity::{Entity};
 use crate::game::Game;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
+use crate::screen::Screen;
+use crate::screens::you_died::DeathScreen;
 use crate::tile::{TileSize, TileType};
 use crate::utils::{create_uuid, mul_vec, normalise_vec};
 
@@ -28,6 +30,15 @@ pub struct Player {
 }
 
 impl Entity for Player {
+    fn tick(&mut self, delta: f32) {
+        if self.health <= 0.0 {
+            let game = unsafe { &mut *self.game };
+            game.entities.clear();
+            game.current_level = None;
+            game.current_screen = Some(DeathScreen::create(game));
+        }
+    }
+
     fn get_coords(&mut self) -> (f32, f32) {
         self.coords
     }
@@ -69,6 +80,7 @@ impl Entity for Player {
         y = if self.get_in_wall((prev_coords.0, y)) {prev_coords.1} else {y};
 
         self.set_coords( (x,y) );
+        self.tick(delta);
     }
 
     fn get_resource_location(&self) -> &ResourceLocation {
@@ -152,8 +164,8 @@ impl Player {
                 _ => {}
             }
         }
-        //normalise_vec(&mut ret_vel);
-        mul_vec(&mut ret_vel, 60.0);
-        self.set_velocity(ret_vel);
+        let mut norm = normalise_vec(ret_vel);
+        mul_vec(&mut norm, 60.0);
+        self.set_velocity(norm);
     }
 }
