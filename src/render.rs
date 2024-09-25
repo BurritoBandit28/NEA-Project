@@ -14,7 +14,7 @@ use crate::resource_location::ResourceLocation;
 
 pub const DIMENSIONS: (u32, u32) = (320, 180);
 
-// todo, make clone implementation
+/// A struct which holds all relevant information for displaying an item's texture.
 pub struct AssetData {
     pub(crate) uv: Option<Rect>,
     pub(crate) origin: (i32, i32),
@@ -22,6 +22,7 @@ pub struct AssetData {
 }
 
 impl AssetData {
+    /// Creates a resource location with no information
     pub fn empty() -> Self {
         Self {
             uv: Some(Rect::new(0,0,32,32)),
@@ -42,7 +43,7 @@ impl Clone for AssetData {
 }
 
 
-
+/// Access a static list of ResourceLocations with missing textures.
 pub fn get_missing_list() -> &'static Mutex<Vec<String>>{
     static INSTANCE : OnceCell<Mutex<Vec<String>>> = OnceCell::new();
     INSTANCE.get_or_init(|| {
@@ -51,7 +52,7 @@ pub fn get_missing_list() -> &'static Mutex<Vec<String>>{
     })
 }
 
-
+/// Access a static list of mouse icons
 pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
     static INSTANCE: OnceCell<Mutex<HashMap<&'static str, AssetData>>> = OnceCell::new();
     INSTANCE.get_or_init(|| {
@@ -68,7 +69,7 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
             "finger",
             AssetData {
                 uv: Option::from(Rect::new(32, 0, 16, 16)),
-                origin: (0, 0),
+                origin: (3, 1),
                 resource_location: ResourceLocation::new("game", "gui/icons.png"),
             },
         );
@@ -86,18 +87,20 @@ pub fn get_icons() -> &'static Mutex<HashMap<&'static str, AssetData>> {
 
 
 
-
+/// Draws textures to the screen pixel-perfectly
 pub fn draw_pp_texture(x: i32, y: i32, ass: &AssetData, mut canvas: &mut WindowCanvas, sf: i32, textures : &HashMap<String, Texture>) {
     let uv = ass.uv.unwrap();
-    let tex_rect = Rect::new(x - ass.origin.0 as i32, y - ass.origin.1 as i32, uv.w as u32, uv.h as u32);
+    let tex_rect = Rect::new(x - ass.origin.0, y - ass.origin.1, uv.w as u32, uv.h as u32);
     let mut id = ass.resource_location.clone();
 
     canvas
         .set_scale(sf as f32, sf as f32)
         .expect("TODO: panic message");
 
+    // get texture from the map
     let mut texture = textures.get(&id.to_string());
 
+    // if the texture is missing, show missing texture
     if texture.is_none(){
         if !get_missing_list().lock().unwrap().contains(&&id.to_string()) {
             warn!("Texture at {} could not be found!", id.to_string())
@@ -105,6 +108,7 @@ pub fn draw_pp_texture(x: i32, y: i32, ass: &AssetData, mut canvas: &mut WindowC
         get_missing_list().lock().unwrap().push(id.clone().to_string());
         texture = textures.get(&ResourceLocation::new("game", "missing.png").to_string());
     }
+
 
     canvas
         .copy_ex(&texture.unwrap(),

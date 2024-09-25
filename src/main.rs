@@ -62,10 +62,10 @@ fn main() {
         sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / DIMENSIONS.0 as i32;
     let video_subsys = sdl_ctx.video().unwrap();
 
+    // the actual dimensions of the game screen, as they won't always be 320/180 due to differing aspect ratios
     let dims = ((sdl_ctx.video().unwrap().current_display_mode(0).unwrap().w / scale_factor) as u32, (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor) as u32);
 
     let scale_offset = (sdl_ctx.video().unwrap().current_display_mode(0).unwrap().h / scale_factor as i32) - 180;
-    let half_scale_offset = scale_offset / 2;
     //todo : get the difference in height and display 2 black bars to give 16:9 ratio screen
 
     //hide mouse
@@ -87,7 +87,6 @@ fn main() {
     //create canvas
     let mut canvas = &mut window.into_canvas().build().unwrap();
     let texture_creator = canvas.texture_creator();
-    let background_test = texture_creator.load_texture("./assets/game/bgrnd.png").unwrap();
 
     // counter to count how many objects are loaded for the debug logs
     let mut counter = 0;
@@ -261,6 +260,8 @@ fn main() {
 
     info!("{} tiles loaded!", counter);
 
+
+    // register event pump to handle inputs
     let mut event_pump = sdl_ctx.event_pump().unwrap();
 
     canvas.present();
@@ -269,39 +270,19 @@ fn main() {
 
     let mut game = Game::initiate();
 
+    // register extra values to the game
     game.sf = scale_factor;
     game.current_screen = Some(MainMenuScreen::create(&mut game));
 
-    /*
-    // test entities
-    //EntityTest::create_player(&mut game);
-    //EntityTest::create_obj(&mut game, (-30f32, 70f32));
-    player::Player::create(&mut game);
-    enemy::Enemy::create(&mut game);
-
-    let _ = game
-        .entities
-        .get_mut(0)
-        .unwrap()
-        .lock()
-        .unwrap()
-        .set_coords((10.0, 10.0));
-
-    let _ = game
-        .entities
-        .get_mut(1)
-        .unwrap()
-        .lock()
-        .unwrap()
-        .set_coords((20.0, 20.0));
-
-     */
-
-    let mut delta: f32 = 0.0;
-
+    // append hashmaps to game instance
     game.tiles = tiles;
     game.sounds = sounds;
     game.dims = dims;
+
+    /// Delta refers to the time taken between showing two frames. This value is often used for physics related operations, as this allows the simulation to not be affected by the frame rate of the computer.
+    /// You can see that happening in [`Entity::physics`]
+    // initiate delta
+    let mut delta: f32 = 0.0;
 
     // load the test level
     //game.current_level = Some(Level::create_test_level(&tiles));
@@ -311,13 +292,15 @@ fn main() {
     while game.running {
         canvas.clear();
 
+        // begin timer for delta
         let start = Instant::now();
 
+        // draw background texture
         canvas
             .copy_ex(
                 &textures.get("game:background.png").unwrap(),
                 None,
-                Rect::new(0, 0, 320 /*dims.0*/, 180 /*dims.1*/),
+                Rect::new(0, 0, dims.0, dims.1),
                 0.0,
                 None,
                 false,
@@ -325,23 +308,25 @@ fn main() {
             )
             .expect("TODO: panic message");
 
-
+        // get keys that are held down
         game.held_keys = vec![];
         for key in event_pump.keyboard_state().pressed_scancodes() {
             game.held_keys.push(key);
         }
 
+        // get keys that are pressed
         game.events = vec![];
         for event in event_pump.poll_iter() {
             game.events.push(event.clone());
         }
 
+        // run a game cycle
         game.cycle(delta, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32, dims);
 
-        unsafe {
-            game.render(canvas, scale_factor, &textures, dims, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32);
-        }
+        // run game render
+        game.render(canvas, scale_factor, &textures, dims, (event_pump.mouse_state().x() / scale_factor) as u32, (event_pump.mouse_state().y() / scale_factor) as u32);
 
+        // present screen buffer to user
         canvas.present();
         delta = start.elapsed().as_secs_f32();
     }

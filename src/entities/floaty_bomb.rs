@@ -19,7 +19,6 @@ pub struct FloatyBomb {
     index : usize,
     uuid : Uuid,
     game : *mut Game,
-    prev_coord : (f32, f32),
     target : Option<(f32, f32)>
 }
 
@@ -100,7 +99,6 @@ impl FloatyBomb {
             velocity: (0.0, 0.0),
             uuid,
             game,
-            prev_coord: (0.0, 0.0),
             health : 12.0,
             resource_location : ResourceLocation::new("game", "entity/floaty_bomb"),
             index : game.entities.len(),

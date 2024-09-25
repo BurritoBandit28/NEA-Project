@@ -8,7 +8,7 @@ use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::widgets::enum_widget::WidgetEnum;
 
-// might not keep this, not sure yet
+/// Determins whether a tile is a floor (no hitbox) or a wall (hitbox)
 pub enum TileType {
     WALL,
     FLOOR
@@ -21,6 +21,7 @@ impl TileType {
         }
     }
 
+    /// Returns an int version of each field
     pub fn as_int(self) -> u32 {
         match self {
             TileType::WALL => {0}
@@ -48,6 +49,7 @@ impl PartialEq for TileType {
     }
 }
 
+/// The size of a tile, 64, 32 or 16
 pub enum TileSize {
     BIG,
     MEDIUM,
@@ -78,7 +80,7 @@ impl TileSize {
     }
 
 }
-
+// Implementation for the WidgetEnum trait
 impl WidgetEnum for TileSize {
     fn get_as_string(&mut self) -> String {
         match self {
@@ -120,7 +122,7 @@ impl Copy for TileSize {
 }
 
 
-// tiles loaded on runtime by a json file that defines its texture, material and if its a wall
+/// Tiles loaded on runtime by a json file that defines its texture, material and if it's a wall
 pub struct Tile {
     name : String,
     resource_location: ResourceLocation,
