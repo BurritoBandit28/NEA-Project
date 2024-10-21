@@ -10,6 +10,10 @@ use crate::screens::room_editor_screen::RoomEditorScreen;
 use crate::widget::Alignment;
 use crate::widget::Widget;
 
+
+// When designing a widget, it is a good idea to keep in mind things like colour and contrast.
+// Some users may have issues looking at certain colours, so keeping a high contrast is important.
+// If you do not want to have high contrast by default, you can add it as a config option
 pub struct PlayWidget {
     selected : bool,
     asset_data: AssetData,

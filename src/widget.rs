@@ -6,6 +6,7 @@ use crate::render;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 
+/// Used to create buttons and widget UI displays.
 pub trait Widget {
     #[must_use]
     fn on_click(&mut self);
