@@ -1,10 +1,8 @@
 use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
 use num::clamp;
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, WindowCanvas};
+use crate::entity::Entity;
 use crate::game::Game;
 use crate::render;
 use crate::render::AssetData;
@@ -12,39 +10,38 @@ use crate::resource_location::ResourceLocation;
 use crate::widget::{Alignment, Widget};
 use crate::widgets::play_widget::PlayWidget;
 
-pub struct DeathMessage {
+pub struct ScoreWidget {
     selected : bool,
-    asset_data: AssetData,
+    base_asset_data: AssetData,
     alignment: Alignment,
     coords : (i32, i32),
     game : *mut Game,
+    score : u32
 }
 
-impl DeathMessage {
+impl ScoreWidget {
     pub fn create(alignment: Alignment, x : i32, y : i32, game : *mut Game) -> Box<Self>
     where
         Self: Sized
     {
-        fs::create_dir("./scores");
-        let mut file = File::create(format!("./scores/{}.txt", chrono::offset::Local::now().to_string().replace(" ", "_").replace(":", "-"))).unwrap();
-        unsafe{file.write_all(format!("{}",(*game).score as i32).as_bytes()).unwrap()};
 
         let ret = Self {
             selected: false,
-            asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 320, 180)),
+            base_asset_data: AssetData {
+                uv: Some(Rect::new(0, 0, 8, 10)),
                 origin: (0, 0),
-                resource_location: ResourceLocation::new("game", "misc/you_died.png"),
+                resource_location: ResourceLocation::new("game", "gui/numbers.png"),
             },
             alignment,
             coords: (x, y),
-            game
+            game,
+            score: 0
         };
         Box::new(ret)
     }
 }
 
-impl Widget for DeathMessage {
+impl Widget for ScoreWidget {
     fn on_click(&mut self) {}
 
     fn get_selected(&mut self) -> bool {
@@ -63,15 +60,15 @@ impl Widget for DeathMessage {
     }
 
     fn get_asset_data(&mut self) -> AssetData {
-        self.asset_data.clone()
+        self.base_asset_data.clone()
     }
 
     fn set_asset_data(&mut self, ass: AssetData) {
-        self.asset_data = ass
+        self.base_asset_data = ass
     }
 
     fn get_resource_location(&mut self) -> ResourceLocation {
-        ResourceLocation::new("game", "widgets/dEATHDEATHDEATH")
+        ResourceLocation::new("game", "widgets/score")
     }
 
     fn get_allignment(&mut self) -> Alignment {
@@ -86,5 +83,17 @@ impl Widget for DeathMessage {
     fn get_game(&mut self) {
     }
 
+    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32)) {
+        let game = unsafe { &mut *self.game };
+        let score_as_string = format!("{}",game.score.clone() as u32);
+        let mut counter = 0;
+        for character in score_as_string.chars() {
+            let mut asset_data = self.base_asset_data.clone();
+            asset_data.uv = Some(Rect::new(character.to_string().parse::<i32>().unwrap() * 8, 0, 8, 10));
+            render::draw_pp_texture(self.coords.0 + (8 * counter), self.coords.1, &asset_data, canvas, sf, textures);
+            counter+=1;
+        }
+
+    }
 
 }

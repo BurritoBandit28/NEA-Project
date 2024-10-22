@@ -6,6 +6,7 @@ use std::sync::Mutex;
 use chrono::Month;
 use kira::manager::{AudioManager, AudioManagerSettings, DefaultBackend};
 use kira::sound::static_sound::StaticSoundData;
+use log::info;
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::mouse::MouseButton;
@@ -37,13 +38,20 @@ pub struct Game {
     pub draw_mouse : bool,
     pub sf : i32,
     pub use_finger : bool,
-    pub dims : (u32,u32)
+    pub dims : (u32,u32),
+    pub score : f32,
+    debug : bool
 }
 
 impl Game {
 
     /// Physics and inputs
     pub fn cycle(&mut self, delta : f32, mousex : u32, mousey : u32, dims : (u32, u32)) {
+
+
+        if !self.entities.is_empty() {
+            self.score += delta;
+        }
 
         // Run physics for every entity
         for entity in self.entities.iter() {
@@ -63,10 +71,16 @@ impl Game {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => {
+                    info!("Quitting game!");
                     // close game on Escape, or app closure
                     self.running=false
                 },
-
+                Event::KeyDown {
+                    keycode: Some(Keycode::L),
+                    ..
+                } => {
+                    self.debug= !self.debug
+                },
                 Event::MouseButtonDown {
                     mouse_btn : MouseButton::Left,
                     ..
@@ -147,7 +161,7 @@ impl Game {
             let mut level = &mut self.current_level;
             // make sure the level isn't None, and render it to screen
             if level.is_some() {
-                level.as_mut().unwrap().render(player_coords, textures, canvas, sf, false);
+                level.as_mut().unwrap().render(player_coords, textures, canvas, sf, self.debug);
             }
 
             // iterate through the order
@@ -216,7 +230,9 @@ impl Game {
             draw_mouse : true,
             sf : 6,
             use_finger : false,
-            dims: (0,0)
+            dims: (0,0),
+            score: 0.0,
+            debug : false
         }
         
     }

@@ -7,6 +7,7 @@ use crate::widget::{Alignment, Widget};
 use crate::widgets::editor_widget::EditorWidget;
 use crate::widgets::play_widget::PlayWidget;
 use crate::widgets::player_health_widget::PlayerHealthWidget;
+use crate::widgets::score_widget::ScoreWidget;
 use crate::widgets::source_widget::SourceWidget;
 
 pub struct HudScreen {
@@ -36,6 +37,7 @@ impl Screen for HudScreen {
             game,
         };
         ret.add_widget(PlayerHealthWidget::create(Alignment::TOP, (game.dims.0/2) as i32, 0, game), 0, 0);
+        ret.add_widget(ScoreWidget::create(Alignment::TOP, 0, 0, game), 0, 0);
         Box::new(ret)
     }
 

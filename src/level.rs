@@ -34,6 +34,9 @@ impl Level {
 
     /// Returns the tile at a given world space coordinate and tile size, see more @ [`TileGraph::get_tile`]
     pub fn get_tile(&mut self, size : TileSize, coordinates: (f32, f32)) -> Tile {
+
+
+
         if coordinates.0 <= 0.0 || coordinates.1 <= 0.0 {
             //return Tile::create_none(size);
         }
@@ -127,8 +130,8 @@ impl TileGraph {
         let sf = self.tile_size.get().0 as i32;
 
         // divide the x and y by the scale factor to get the tile x and y
-        let tx = x / sf;
-        let ty = y / sf;
+        let tx = (if x < 0 {x - sf} else { x }) / sf;
+        let ty = (if y < 0 {y - sf} else { y }) / sf;
 
         // use the coordinates as the hashmap key
         let result = self.nodes.get(&(tx, ty));

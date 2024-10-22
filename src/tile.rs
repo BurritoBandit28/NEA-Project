@@ -203,12 +203,12 @@ impl Tile {
         let ass = AssetData {
             uv : Some(Rect::new(0, 0, 16, 16)),
             origin : (0,0),
-            resource_location : ResourceLocation::empty(),
+            resource_location : ResourceLocation::new("game", "tiles/nav.png"),
         };
 
         Self {
-            name: "None".to_string(),
-            resource_location: ResourceLocation::new("game", "tiles/none"),
+            name: "nav".to_string(),
+            resource_location: ResourceLocation::new("game", "tiles/nav"),
             tile_type: TileType::FLOOR,
             size : TileSize::SMALL,
             origin: (0, 0),

@@ -3,6 +3,7 @@ use crate::screen::Screen;
 use crate::widget::{Alignment, Widget};
 use crate::widgets::editor_widget::EditorWidget;
 use crate::widgets::play_widget::PlayWidget;
+use crate::widgets::quit_widget::QuitWidget;
 use crate::widgets::source_widget::SourceWidget;
 
 pub struct MainMenuScreen{
@@ -35,6 +36,7 @@ impl Screen for MainMenuScreen {
         };
         ret.add_widget(SourceWidget::create(Alignment::LEFT, 20, 0, game), 0, 0);
         ret.add_widget(PlayWidget::create(Alignment::LEFT, 60, 0, game), 0, 0);
+        ret.add_widget(QuitWidget::create(Alignment::LEFT, 60, -40, game), 0, 0);
         ret.add_widget(EditorWidget::create(Alignment::LEFT, 20, 30, game), 0,0);
         Box::new(ret)
     }

@@ -131,11 +131,10 @@ impl Player {
     }
 
     pub fn get_in_wall(&mut self, coords : (f32, f32)) -> bool {
-        let small_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::SMALL, coords).get_type()};
-        let medium_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::MEDIUM, coords).get_type()};
-        let big_type = unsafe {(*self.game).current_level.as_mut().unwrap().get_tile(TileSize::BIG, coords).get_type()};
+        let px = (if coords.0 < 0.0 {coords.0 - 1.0} else { coords.0 }) as i32;
+        let py = (if coords.1 < 0.0 {coords.1 - 1.0} else { coords.1 }) as i32;
 
-        if small_type == TileType::WALL && medium_type == TileType::WALL && big_type == TileType::WALL {
+        if unsafe {(*self.game).current_level.as_mut().unwrap().tile_nav.get_tile(px, py).get_type() == TileType::WALL} {
             return true
         }
         false
