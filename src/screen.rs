@@ -58,10 +58,10 @@ pub trait Screen {
     }
 
     /// Render the screen to the ... Screen - the actual real one the player sees
-    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32)) {
+    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32), debug : bool) {
         for widgets in self.get_widgets() {
             for w in widgets {
-                w.render(textures, sf, canvas, dims)
+                w.render(textures, sf, canvas, dims, debug);
             }
         }
     }

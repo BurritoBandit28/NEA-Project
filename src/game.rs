@@ -76,7 +76,7 @@ impl Game {
                     self.running=false
                 },
                 Event::KeyDown {
-                    keycode: Some(Keycode::L),
+                    keycode: Some(Keycode::F3),
                     ..
                 } => {
                     self.debug= !self.debug
@@ -178,7 +178,7 @@ impl Game {
         let scrn = &mut self.current_screen;
         // make sure the screen isn't None, and render it to screen
         if scrn.is_some() {
-            scrn.as_mut().unwrap().render(textures, sf, canvas, dims);
+            scrn.as_mut().unwrap().render(textures, sf, canvas, dims, self.debug);
         }
 
         // draw the mouse, unless instructed otherwise

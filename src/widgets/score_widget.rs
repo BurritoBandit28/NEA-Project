@@ -83,13 +83,19 @@ impl Widget for ScoreWidget {
     fn get_game(&mut self) {
     }
 
-    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32)) {
+    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32), debug : bool) {
         let game = unsafe { &mut *self.game };
         let score_as_string = format!("{}",game.score.clone() as u32);
         let mut counter = 0;
         for character in score_as_string.chars() {
             let mut asset_data = self.base_asset_data.clone();
             asset_data.uv = Some(Rect::new(character.to_string().parse::<i32>().unwrap() * 8, 0, 8, 10));
+            if debug {
+                let mut d_ass = asset_data.clone();
+                d_ass.uv = Some(Rect::new(0,0,d_ass.uv.unwrap().width(),d_ass.uv.unwrap().height()));
+                d_ass.resource_location = ResourceLocation::new("game", "gui/widgets/debug_background.png");;
+                render::draw_pp_texture(self.coords.0 + (8 * counter), self.coords.1, &d_ass, canvas, sf, textures);
+            }
             render::draw_pp_texture(self.coords.0 + (8 * counter), self.coords.1, &asset_data, canvas, sf, textures);
             counter+=1;
         }

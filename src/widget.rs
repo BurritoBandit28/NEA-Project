@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use log::warn;
+use sdl2::rect::Rect;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::game::Game;
 use crate::render;
@@ -50,6 +51,13 @@ pub trait Widget {
     #[must_use]
     fn get_asset_data(&mut self) -> AssetData;
 
+    fn get_debug_asset_data(&mut self) -> AssetData {
+        let mut ass = self.get_asset_data().clone();
+        ass.uv = Some(Rect::new(0,0,ass.uv.unwrap().width(),ass.uv.unwrap().height()));
+        ass.resource_location = ResourceLocation::new("game", "gui/widgets/debug_background.png");
+        ass
+    }
+
     #[must_use]
     fn set_asset_data(&mut self, ass : AssetData);
 
@@ -69,8 +77,11 @@ pub trait Widget {
         None
     }
 
-    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32)) {
+    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32), debug : bool) {
         let coords = self.correct_coords(dims);
+        if debug {
+            render::draw_pp_texture(coords.0, coords.1, &self.get_debug_asset_data(), canvas, sf, textures)
+        }
         render::draw_pp_texture(coords.0, coords.1, &self.get_asset_data(), canvas, sf, textures)
     }
 }

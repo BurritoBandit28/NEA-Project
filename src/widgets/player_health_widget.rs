@@ -93,7 +93,7 @@ impl Widget for PlayerHealthWidget {
     fn get_game(&mut self) {
     }
 
-    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32)) {
+    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32), debug : bool) {
         let game = unsafe { &mut *self.game };
         let health = clamp(game.get_player().unwrap().get_mut().unwrap().get_health(), 0.0, 20.0);
         let coords = self.correct_coords(dims);
@@ -102,6 +102,9 @@ impl Widget for PlayerHealthWidget {
             for mut h in 0..(health/2.0).ceil() as u32 {
                 if health % 2.0 != 0.0  && h+1 == (health/2.0).ceil() as u32 {
                     self.half = true;
+                }
+                if debug {
+                    render::draw_pp_texture(coords.0 - (14 * (h+1)) as i32, coords.1, &Widget::get_debug_asset_data(self), canvas, sf, textures)
                 }
                 render::draw_pp_texture(coords.0 - (14 * (h+1)) as i32, coords.1, &self.get_asset_data(), canvas, sf, textures)
             }
