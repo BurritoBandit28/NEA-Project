@@ -8,6 +8,7 @@ use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::utils::create_uuid;
 
+/// When created it will play an explosion animation
 pub struct Explosion {
     coords : (f32, f32),
     timer : f32,
@@ -40,6 +41,14 @@ impl Entity for Explosion {
         // no
     }
 
+    fn tick(&mut self, delta: f32) {
+        if self.timer > 0.75 {
+            let game = unsafe { &mut *self.game };
+            game.entities.remove(self.index - 1);
+        }
+        self.timer += delta;
+    }
+
     fn get_resource_location(&self) -> &ResourceLocation {
         &self.resource_location
     }
@@ -59,14 +68,6 @@ impl Entity for Explosion {
     fn get_asset_data(&mut self) -> AssetData {
         let frame = clamp((self.timer / 0.125) as usize, 0, 5);
         self.frames[frame].clone()
-    }
-
-    fn tick(&mut self, delta: f32) {
-        if self.timer > 0.75 {
-            let game = unsafe { &mut *self.game };
-            game.entities.remove(self.index - 1);
-        }
-        self.timer += delta;
     }
 }
 

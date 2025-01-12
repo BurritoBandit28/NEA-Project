@@ -7,6 +7,7 @@ use sdl2::rect::Rect;
 use crate::entities::player::Player;
 use crate::entities::turret::Turret;
 use crate::game::Game;
+use crate::render;
 use crate::render::{AssetData};
 use crate::resource_location::ResourceLocation;
 
@@ -86,13 +87,15 @@ pub trait Entity {
         let y = self.get_coords().1;
         let px = player_coords.0 as i32;
         let py = player_coords.1 as i32;
+        let half_x = (render::DIMENSIONS.0 / 2) as i32;
+        let half_y = (render::DIMENSIONS.1 / 2) as i32;
 
         // if the player coordinates are negative, then the rounding would be incorrect, as values such as -1.4 would round to -1, and not -2 as desired for the rendering to be correct.
         //let px = (if player_coords.0 < 0.0 {player_coords.0 - 1.0} else { player_coords.0 }) as i32;
         //let py = (if player_coords.1 < 0.0 {player_coords.1 - 1.0} else { player_coords.1 }) as i32;
 
         // the conversion for the different coordinate spaces
-        (((160i32 - px) as f32 + x) as i32, ((90i32 - py ) as f32 + y) as i32)
+        (((half_x - px) as f32 + x) as i32, ((half_y - py ) as f32 + y) as i32)
     }
 
     /// Returns the asset data of the entity

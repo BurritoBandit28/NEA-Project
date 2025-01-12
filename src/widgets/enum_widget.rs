@@ -50,17 +50,21 @@ impl<T : WidgetEnum + 'static + Clone> EnumWidget<T> {
 
 impl<T : WidgetEnum> Widget for EnumWidget<T> {
 
-    // Cycle through the enum values when clicked
+    /// Cycle through the enum values when clicked
     fn on_click(&mut self) {
+        // If on the last field, when clicked loop back to the first one
         if self.current_indx == self.enum_type.count() -1 {
             self.current_indx = 0;
         }
         else {
+            // otherwise increment by one
             self.current_indx +=1;
         }
+        // Use the integer value to get the Enum field.
         self.enum_type = T::get_from_index(self.current_indx);
     }
 
+    // basic widget boilerplate
     fn get_selected(&mut self) -> bool {
         self.selected
     }
@@ -76,6 +80,8 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
     fn set_screen_coordinates(&mut self, x: i32, y: i32) {
         self.coords = (x, y)
     }
+
+    // The asset data should be auto generated for the enum type.
     fn get_asset_data(&mut self) -> AssetData {
 
         // using the name of the enums different values to get the textures allows dynamic generation of the resource location
@@ -91,6 +97,7 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
         }
     }
 
+    // more boilerplate
     fn set_asset_data(&mut self, ass: AssetData) {
         self.asset_data = ass
     }
@@ -111,7 +118,7 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
         // why is there a getter that returns nothing...? what was I on
     }
 
-    fn return_enum_int(&mut self) -> Option<usize> {
+    fn return_integer_data(&mut self) -> Option<usize> {
         Some(self.current_indx)
     }
 
@@ -119,15 +126,15 @@ impl<T : WidgetEnum> Widget for EnumWidget<T> {
 
 pub trait WidgetEnum {
 
-    // the name of the specific enum value
+    /// Gets the name of the Enum field as a string
     fn get_as_string(&mut self) -> String;
 
-    // get a enum value from an integer
+    /// Get an Enum value from an integer
     fn get_from_index(index : usize) -> Self;
 
-    // how many enum values there are in the enum
+    /// Number of fields within the Enum
     fn count(&mut self) -> usize;
 
-    // the name of the enum that contains all the values, for example "tile_size"
+    /// The name of the Enum that contains all the fields, for example "tile_size", which contains "large", "medium" and "small"
     fn name(&mut self) -> String;
 }

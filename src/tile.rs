@@ -14,6 +14,8 @@ pub enum TileType {
     FLOOR
 }
 impl TileType {
+
+    /// Parse a tile type from a string - defailts to floor
     pub fn parse(ttype : String) -> Self {
         match ttype.as_str() {
             "wall" => {Self::WALL}
@@ -30,6 +32,7 @@ impl TileType {
     }
 }
 
+// Clone implementation for TileType
 impl Clone for TileType {
     fn clone(&self) -> Self {
         match self {
@@ -56,7 +59,9 @@ pub enum TileSize {
     SMALL
 }
 
+// Implementation of the TileSize type
 impl TileSize {
+    // parse a string for TileSize - defaults to big
     pub fn parse(ts : &str) -> Self {
         match ts.to_lowercase().as_str() {
             "small" => {
@@ -71,6 +76,7 @@ impl TileSize {
         }
     }
 
+    /// Get the dimensions of the TileSize. Returns a tuple - pretty dumb but its on the todo list to fix
     pub fn get(&self) -> (u32, u32) {
         match self {
             TileSize::BIG => {(64, 64)}
@@ -82,11 +88,13 @@ impl TileSize {
 }
 // Implementation for the WidgetEnum trait
 impl WidgetEnum for TileSize {
+
+    // gets each enum field as a string - matching the strings required for parse
     fn get_as_string(&mut self) -> String {
         match self {
-            TileSize::BIG => {String::from("big_tile")}
-            TileSize::MEDIUM => {String::from("medium_tile")}
-            TileSize::SMALL => {String::from("small_tile")}
+            TileSize::BIG => {String::from("big")}
+            TileSize::MEDIUM => {String::from("medium")}
+            TileSize::SMALL => {String::from("small")}
         }
     }
 

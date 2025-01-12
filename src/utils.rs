@@ -13,16 +13,24 @@ use num::pow;
 use uuid::Uuid;
 use crate::entity::{Entity,};
 
+/// Multiply a 2D vector represented using a tuple by a number.
+/// # Example
+/// ```
+/// let mut vector = (3.5, 6.0);
+/// mul_vec(&mut vector, 4.0);
+/// assert_eq!(vector, (14.0, 24.0))
+/// ```
 pub fn mul_vec(vec : &mut (f32, f32), val : f32) {
     vec.0 *= val;
     vec.1 *= val;
+
 }
 
-// broken : todo fix
+/// Normalises a vector. Normalisation is the process of creating a unit vector, which is where the resultant "force" is equal to 1
 pub fn normalise_vec(vec : (f32, f32)) -> (f32,f32) {
     // get the square root of the object
     let mag = f32::sqrt((vec.0 * vec.0) + (vec.1 * vec.1));
-    if mag == 0.0 {
+    if mag == 0.0 { // edge case that would cause a crash
         return (0.0, 0.0)
     }
     (vec.0 / mag, vec.1 / mag)
@@ -30,7 +38,7 @@ pub fn normalise_vec(vec : (f32, f32)) -> (f32,f32) {
 }
 
 
-
+/// Z-Ordering for entities. Returns a list of indexes for rendering entities in the correct order.
 pub(crate) fn order_sort(entities : &mut Vec<Box<Mutex<dyn Entity>>>) -> Vec<(usize, usize, f32)> {
     //              list   index  amount
     let mut list : Vec<(usize, usize, f32)> = vec![];
@@ -46,7 +54,7 @@ pub(crate) fn order_sort(entities : &mut Vec<Box<Mutex<dyn Entity>>>) -> Vec<(us
 
 }
 
-// a quick sort alogorithm designed to get the order of renderable objects
+/// A quick sort alogorithm designed to get the order of renderable objects. Sorts based off their y coordinate.
 fn sort(list : &mut Vec<(usize, usize, f32)>) {
     if !(list.len() <= 1) {
         let mut indx1 = 1usize;
@@ -119,10 +127,12 @@ pub fn init_logger() {
     let _handle = log4rs::init_config(config);
 }
 
+/// Creates a Universally Unique Identifier
 pub fn create_uuid() -> Uuid {
     Uuid::new_v4()
 }
 
+/// Get the distance between two points, using a^2 + b^2 = c^2
 pub fn get_dist(a : &(f32, f32), b : &(f32, f32)) -> u32 {
     let a_squared = (a.0 + b.0) * (a.0 + b.0);
     let b_squared = (a.1 + b.1) * (a.1 + b.1);

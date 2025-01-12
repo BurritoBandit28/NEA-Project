@@ -11,6 +11,7 @@ mod widgets;
 mod screens;
 mod widget;
 mod sound;
+mod tests;
 
 use crate::sound::Sound;
 use std::collections::HashMap;

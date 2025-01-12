@@ -5,6 +5,9 @@ use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::utils::create_uuid;
 
+
+
+/// A blank entity that does nothing besides existing
 pub struct DummyEntity {
     coords: (f32, f32),
     pub asset_data: AssetData,
@@ -18,6 +21,9 @@ pub struct DummyEntity {
 }
 
 impl Entity for DummyEntity {
+
+    // These functions exist just to fulfill trait requirements
+
     fn get_coords(&mut self) -> (f32, f32) {
         self.coords
     }
@@ -34,6 +40,7 @@ impl Entity for DummyEntity {
         todo!()
     }
 
+    // I thought the ability to switch its texture could be useful
     fn set_resource_location(&mut self, rl: ResourceLocation) {
         self.resource_location = rl
     }

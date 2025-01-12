@@ -7,6 +7,8 @@ use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::utils::create_uuid;
 
+// This was used during development and doesn't do anything
+
 pub struct Enemy {
     coords: (f32, f32),
     pub asset_data: AssetData,

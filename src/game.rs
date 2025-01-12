@@ -72,13 +72,14 @@ impl Game {
                     ..
                 } => {
                     info!("Quitting game!");
-                    // close game on Escape, or app closure
+                    // close game on Escape, or window closure
                     self.running=false
                 },
                 Event::KeyDown {
                     keycode: Some(Keycode::F3),
                     ..
                 } => {
+                    // debug mode
                     self.debug= !self.debug
                 },
                 Event::MouseButtonDown {

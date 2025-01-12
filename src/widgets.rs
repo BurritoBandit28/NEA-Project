@@ -10,3 +10,4 @@ pub(crate) mod quit_widget;
 
 use crate::widget::Widget;
 
+// mods all the widgets into the project

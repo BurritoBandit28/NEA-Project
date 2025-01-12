@@ -113,7 +113,7 @@ impl Screen for RoomEditorScreen {
             for w in widgets {
 
                 if w.get_resource_location().to_string() == String::from("game:widgets/enum/tile_size") {
-                    scale_indx = w.return_enum_int().unwrap();
+                    scale_indx = w.return_integer_data().unwrap();
                 }
 
                 let _ = w.set_selected(false);
