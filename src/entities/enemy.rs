@@ -8,6 +8,7 @@ use crate::resource_location::ResourceLocation;
 use crate::utils::create_uuid;
 
 // This was used during development and doesn't do anything
+// it is very similar to the other entity objects
 
 pub struct Enemy {
     coords: (f32, f32),

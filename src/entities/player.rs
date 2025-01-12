@@ -31,12 +31,37 @@ pub struct Player {
 
 impl Entity for Player {
     fn tick(&mut self, delta: f32) {
+
+        // on death display the death screen and unload the level
         if self.health <= 0.0 {
             let game = unsafe { &mut *self.game };
             game.entities.clear();
             game.current_level = None;
             game.current_screen = Some(DeathScreen::create(game));
         }
+
+
+    }
+
+    // this function was made before the tick function was added, if I did this now I would
+    // use a different approach
+    fn physics(&mut self, delta: f32) {
+
+        self.tick(delta);
+
+        let game = self.game.clone();
+
+        unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
+
+        let prev_coords = self.coords;
+
+        let mut x = self.get_coords().0 + self.get_velocity().0 * delta;
+        let mut y = self.get_coords().1 + self.get_velocity().1 * delta;
+
+        x = if self.get_in_wall((x, prev_coords.1)) {prev_coords.0} else {x};
+        y = if self.get_in_wall((prev_coords.0, y)) {prev_coords.1} else {y};
+
+        self.set_coords((x,y))
     }
 
     fn get_coords(&mut self) -> (f32, f32) {
@@ -52,11 +77,7 @@ impl Entity for Player {
     }
 
     fn get_asset_data(&mut self) -> AssetData {
-        AssetData {
-            uv: self.asset_data.uv.clone(),
-            origin: self.asset_data.origin.clone(),
-            resource_location: self.asset_data.resource_location.clone(),
-        }
+        self.asset_data.clone()
     }
 
     fn get_velocity(&mut self) -> (f32, f32) {
@@ -65,22 +86,6 @@ impl Entity for Player {
 
     fn set_velocity(&mut self, velocity: (f32, f32)) {
         self.velocity = velocity;
-    }
-    fn physics(&mut self, delta: f32) {
-        let game = self.game.clone();
-
-        unsafe { self.handle_input((*game).held_keys.clone(), (*game).events.clone()) }
-
-        let prev_coords = self.coords;
-
-        let mut x = self.get_coords().0 + self.get_velocity().0 * delta;
-        let mut y = self.get_coords().1 + self.get_velocity().1 * delta;
-
-        x = if self.get_in_wall((x, prev_coords.1)) {prev_coords.0} else {x};
-        y = if self.get_in_wall((prev_coords.0, y)) {prev_coords.1} else {y};
-
-        self.set_coords( (x,y) );
-        self.tick(delta);
     }
 
     fn get_resource_location(&self) -> &ResourceLocation {
@@ -131,10 +136,17 @@ impl Player {
     }
 
     pub fn get_in_wall(&mut self, coords : (f32, f32)) -> bool {
+
+        let game_level = unsafe { &mut *self.game }.current_level.as_mut();
+
+        if game_level.is_none() {
+            return true
+        }
+
         let px = (if coords.0 < 0.0 {coords.0 - 1.0} else { coords.0 }) as i32;
         let py = (if coords.1 < 0.0 {coords.1 - 1.0} else { coords.1 }) as i32;
 
-        if unsafe {(*self.game).current_level.as_mut().unwrap().tile_nav.get_tile(px, py).get_type() == TileType::WALL} {
+        if game_level.unwrap().tile_nav.get_tile(px, py).get_type() == TileType::WALL {
             return true
         }
         false

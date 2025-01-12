@@ -42,6 +42,7 @@ impl Entity for Explosion {
     }
 
     fn tick(&mut self, delta: f32) {
+        // increase timer, or remove self when timer complete
         if self.timer > 0.75 {
             let game = unsafe { &mut *self.game };
             game.entities.remove(self.index - 1);
@@ -66,6 +67,7 @@ impl Entity for Explosion {
     }
 
     fn get_asset_data(&mut self) -> AssetData {
+        // play back the animation at 8 frames per second
         let frame = clamp((self.timer / 0.125) as usize, 0, 5);
         self.frames[frame].clone()
     }
@@ -73,6 +75,7 @@ impl Entity for Explosion {
 
 impl Explosion {
     pub fn create(game : &mut Game, coords : (f32, f32)) {
+        // register frames
         let frame1 = AssetData {
             uv: Option::from(sdl2::rect::Rect::new(0, 0, 64, 64)),
             origin: (32, 32),
@@ -104,6 +107,7 @@ impl Explosion {
             resource_location: ResourceLocation::new("game", "entity/explosion/explosion.png"),
         };
 
+        // push frames to a list
         let mut frames = vec![];
         frames.push(frame1);
         frames.push(frame2);
@@ -114,6 +118,7 @@ impl Explosion {
 
         let uuid = create_uuid();
 
+        // create entity instance
         let mut explosion = Self {
             coords,
             timer: 0.0,
@@ -124,8 +129,9 @@ impl Explosion {
             frames,
         };
 
-        let ret = Box::new(Mutex::new(explosion));
 
+        let ret = Box::new(Mutex::new(explosion));
+        // push entity to the entity list
         game.entities.push(ret);
         game.play_sound(ResourceLocation::new("game", "sounds/entity/explosion/explosion.ogg"))
     }

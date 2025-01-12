@@ -69,6 +69,9 @@ pub trait Entity {
     /// [`tick`]: Entity::tick
     fn physics(&mut self, delta : f32) {
 
+        // run any additional code
+        self.tick(delta);
+
         // if the current entity doesn't move, skip this
         if !self.is_static()
         {
@@ -77,8 +80,7 @@ pub trait Entity {
 
             self.set_coords((x, y))
         }
-        // run any additional code
-        self.tick(delta)
+
     }
 
     /// converts world space coordinates to screen coordinates.

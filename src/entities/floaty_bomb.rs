@@ -40,23 +40,48 @@ impl Entity for FloatyBomb {
     }
 
     fn tick(&mut self, delta: f32) {
+        // get the game instance
         let game = unsafe { &mut *self.game };
-        if self.target.is_none() || self.target == Some(((((self.coords.0 as i32 / 16) * 16) + 8) as f32, (((self.coords.1 as i32 / 16) * 16) + 8) as f32)) {
+        // if there is no current target OR current target = current coords
+        if self.target.is_none() || self.target == Some((
+            (((self.coords.0 as i32 / 16) * 16) + 8) as f32,
+            (((self.coords.1 as i32 / 16) * 16) + 8) as f32)
+        ) {
+            // get player coords
             let player = game.get_player().unwrap().lock().unwrap().get_coords();
-            let player_tile = (((player.0 as i32 / 16) * 16) + 8, ((player.1 as i32 / 16) * 16) + 8 );
-            let path = game.current_level.as_mut().unwrap().tile_nav.path_to(self.coords.0 as i32, self.coords.1 as i32, player_tile.0, player_tile.1);
+            // get player in the tile coords (nav tiles x16)
+            let player_tile = (
+                ((player.0 as i32 / 16) * 16) + 8,
+                ((player.1 as i32 / 16) * 16) + 8 );
+            // generate the path
+            let path = game.current_level.as_mut().unwrap()
+                .tile_nav.path_to(
+                    self.coords.0 as i32,
+                    self.coords.1 as i32, player_tile.0, player_tile.1);
+            // if the second position exists, set that to current target
             if path.get(1).is_some() {
-                self.target = Some(((path.get(1).unwrap().clone().0 + 8) as f32, (path.get(1).unwrap().clone().1 + 8) as f32));
+                self.target = Some((
+                    (path.get(1).unwrap().clone().0 + 8) as f32,
+                    (path.get(1).unwrap().clone().1 + 8) as f32));
             }
+            // if the second position does not exist, and distance is less
+            // than 20 pixels
             if path.get(1).is_none() || get_dist(&self.coords, &player) < 20 {
+                // spawn an explosion
                 Explosion::create(game, self.coords);
+                // remove 10 health points from the player
                 game.get_player().unwrap().lock().unwrap().change_health(-10.0);
+                // remove the floaty bomb from the entity list
                 game.entities.remove(self.index);
             }
 
         }
+        // create a normalised vector in the direction from the current
+        // position to the target position
         let mut normalised = normalise_vec((self.target.unwrap().0 - self.coords.0, self.target.unwrap().1 - self.coords.1));
+        // multiply by 20
         mul_vec(&mut normalised, 20.0);
+        // set the current velocity
         self.set_velocity(normalised);
     }
 
