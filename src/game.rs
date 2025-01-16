@@ -4,9 +4,7 @@ use std::io::BufReader;
 use std::ops::DerefMut;
 use std::sync::Mutex;
 use chrono::Month;
-use kira::manager::{AudioManager, AudioManagerSettings, DefaultBackend};
-use kira::sound::static_sound::StaticSoundData;
-use log::info;
+use log::{info, warn};
 use sdl2::event::Event;
 use sdl2::keyboard::{Keycode, Scancode};
 use sdl2::mouse::MouseButton;
@@ -19,7 +17,7 @@ use crate::entities::floaty_bomb::FloatyBomb;
 use crate::render::draw_pp_texture;
 use crate::resource_location::ResourceLocation;
 use crate::screen::Screen;
-use crate::sound::Sound;
+use crate::sound::{AudioManager, Sound};
 use crate::tile::{Tile, TileSize};
 use crate::utils::order_sort;
 use crate::widget::Widget;
@@ -40,7 +38,8 @@ pub struct Game {
     pub use_finger : bool,
     pub dims : (u32,u32),
     pub score : f32,
-    debug : bool
+    debug : bool,
+    audio_manager: AudioManager
 }
 
 impl Game {
@@ -209,10 +208,18 @@ impl Game {
     }
 
     /// Plays a sound file given a [`ResourceLocation`]
-    pub fn play_sound(&mut self, resource_location : ResourceLocation) {
-        // get sound file
-        let sound_data = StaticSoundData::from_file(&self.sounds.get(&resource_location.to_string()).unwrap().path).unwrap();
-        sound::get_audio_manager().lock().unwrap().play(sound_data.clone()).unwrap();
+    pub fn play_sound(&self, resource_location : ResourceLocation) {
+        // get sound from mao
+        let sound  = self.sounds.get(&resource_location.to_string());
+        // if the sound exists, play it
+        if sound.is_some() {
+            self.audio_manager.play_sound(sound.unwrap())
+        }
+        // else, warn in the logs.
+        else {
+            warn!("Sound {} not found!", resource_location.to_string())
+        }
+
     }
 
     /// Create a [`Game`] instance
@@ -233,7 +240,8 @@ impl Game {
             use_finger : false,
             dims: (0,0),
             score: 0.0,
-            debug : false
+            debug : false,
+            audio_manager: AudioManager::create(),
         }
         
     }
