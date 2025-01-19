@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use num::clamp;
 use sdl2::rect::Rect;
 use sdl2::render::{Texture, WindowCanvas};
 use crate::game::Game;
@@ -7,7 +6,6 @@ use crate::render;
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::widget::{Alignment, Widget};
-use crate::widgets::play_widget::PlayWidget;
 
 pub struct PlayerHealthWidget {
     selected : bool,
@@ -95,7 +93,7 @@ impl Widget for PlayerHealthWidget {
 
     fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32), debug : bool) {
         let game = unsafe { &mut *self.game };
-        let health = clamp(game.get_player().unwrap().get_mut().unwrap().get_health(), 0.0, 20.0);
+        let health = f32::max(game.get_player().unwrap().get_mut().unwrap().get_health(), 0.0);
         let coords = self.correct_coords(dims);
         self.half = false;
         if health > 0.0 {
