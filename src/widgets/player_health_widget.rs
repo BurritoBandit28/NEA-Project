@@ -91,10 +91,10 @@ impl Widget for PlayerHealthWidget {
     fn get_game(&mut self) {
     }
 
-    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, dims: (u32, u32), debug : bool) {
+    fn render(&mut self, textures: &HashMap<String, Texture>, sf: i32, canvas: &mut WindowCanvas, debug : bool) {
         let game = unsafe { &mut *self.game };
         let health = f32::max(game.get_player().unwrap().get_mut().unwrap().get_health(), 0.0);
-        let coords = self.correct_coords(dims);
+        let coords = self.correct_coords();
         self.half = false;
         if health > 0.0 {
             for mut h in 0..(health/2.0).ceil() as u32 {

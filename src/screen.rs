@@ -34,7 +34,7 @@ pub trait Screen {
     fn create(game : &mut Game) -> Box<Self> where Self: Sized;
 
     /// What the screen does every frame
-    fn cycle(&mut self, mousex : u32, mousey : u32, dims : (u32, u32), events: Vec<Event>) {
+    fn cycle(&mut self, mousex : u32, mousey : u32, events: Vec<Event>) {
         // get mutable game instance
         let game = unsafe { &mut *self.get_game() };
 
@@ -44,7 +44,7 @@ pub trait Screen {
             // which was ultimately scrapped for the time being.
             for w in widgets {
                 let _ = w.set_selected(false); // default to unselected
-                let mut coords = w.correct_coords(dims); // correct widget coords (Jank but works)
+                let mut coords = w.correct_coords(); // correct widget coords (Jank but works)
 
                 let uv = w.get_asset_data().uv; // get the UVs of the widget
 
@@ -69,7 +69,7 @@ pub trait Screen {
     fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32), debug : bool) {
         for widgets in self.get_widgets() {
             for w in widgets {
-                w.render(textures, sf, canvas, dims, debug);
+                w.render(textures, sf, canvas, debug);
             }
         }
     }

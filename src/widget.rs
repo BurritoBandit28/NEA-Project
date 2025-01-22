@@ -32,8 +32,9 @@ pub trait Widget {
 
     /// Correct the widget coordinates to screen space coordinates given alignment - it's no CSS, but I tried...
     /// In future widgets may have their layout handled by [Clay](https://github.com/nicbarker/clay)
-    fn correct_coords(&mut self, dims : (u32, u32)) -> (i32, i32){
+    fn correct_coords(&mut self) -> (i32, i32){
         let coords = self.get_screen_coordinates();
+        let dims = render::get_actual_dimensions().lock().unwrap().get();
         match self.get_allignment() {
             Alignment::RIGHT => {
                 // centre along the vertical middle of the screen, locked to the right of the screen
@@ -100,8 +101,8 @@ pub trait Widget {
     }
 
     /// Renders the widget to the screen, with the debug texture behind it should ``debug`` be true
-    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32), debug : bool) {
-        let coords = self.correct_coords(dims);
+    fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, debug : bool) {
+        let coords = self.correct_coords();
         if debug {
             render::draw_pp_texture(coords.0, coords.1, &self.get_debug_asset_data(), canvas, sf, textures)
         }

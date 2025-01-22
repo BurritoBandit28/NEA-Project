@@ -59,7 +59,7 @@ impl Game {
 
         // if there is a current screen, run its cycle function
         let _ = if self.current_screen.is_some() {
-            self.current_screen.as_mut().unwrap().cycle(mousex, mousey, dims, self.events.clone())
+            self.current_screen.as_mut().unwrap().cycle(mousex, mousey, self.events.clone())
         };
 
         // handle user inputs

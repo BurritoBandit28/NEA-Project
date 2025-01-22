@@ -103,7 +103,7 @@ impl Screen for RoomEditorScreen {
         Box::new(ret)
     }
 
-    fn cycle(&mut self, mousex : u32, mousey : u32, dims : (u32, u32), events: Vec<Event>) {
+    fn cycle(&mut self, mousex : u32, mousey : u32, events: Vec<Event>) {
 
 
 
@@ -117,7 +117,7 @@ impl Screen for RoomEditorScreen {
                 }
 
                 let _ = w.set_selected(false);
-                let mut coords = w.correct_coords(dims);
+                let mut coords = w.correct_coords();
 
                 let uv = w.get_asset_data().uv;
 
