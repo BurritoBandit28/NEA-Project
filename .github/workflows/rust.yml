@@ -19,7 +19,6 @@ jobs:
 
       - name: Install linux build requirements
         run: sudo apt install --yes --no-install-recommends libasound2-dev pkg-config
-        if: contains(matrix.os, 'ubuntu')
 
       - name: Build
         run: cargo build --verbose
