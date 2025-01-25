@@ -228,13 +228,16 @@ impl Tile {
     }
 
     fn screen(&self, coords : (i32, i32), player_coords :  (f32, f32)) -> (i32, i32) {
-        let size = self.size.get();
+
+        let dims = render::get_actual_dimensions().lock().unwrap().get();
+        let half_x = (dims.0 / 2) as i32;
+        let half_y = (dims.1 / 2) as i32;
 
         let x = coords.0;
         let y = coords.1;
         let px = (if player_coords.0 < 0.0 {player_coords.0 - 1.0} else { player_coords.0 }) as i32;
         let py = (if player_coords.1 < 0.0 {player_coords.1 - 1.0} else { player_coords.1 }) as i32;
-        ((160i32 - px) + x, (90i32 - py ) + y)
+        ((half_x - px) + x, (half_y - py ) + y)
     }
 
     pub fn render(&self, texture: &HashMap<String,Texture>, coords : (i32, i32), canvas: &mut WindowCanvas, sf : i32, player_coords :  (f32, f32)) {
