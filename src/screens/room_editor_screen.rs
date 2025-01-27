@@ -94,7 +94,7 @@ impl Screen for RoomEditorScreen {
             tiles : game.tiles.clone()
         };
 
-        ret.add_widget(EnumWidget::create(Alignment::TOP, 6, 18, game, TileSize::SMALL),0 ,0);
+        ret.add_widget(EnumWidget::create(Alignment::TOP, 6, 18, game, TileSize::SMALL, 20 ,20),0 ,0);
 
         game.current_level = Some(level);
 

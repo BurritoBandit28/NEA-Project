@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use log::info;
 use sdl2::keyboard::Keycode::N;
 use sdl2::rect::Rect;
-use crate::game::Game;
+use crate::game::{DyslexiaMode, Game};
 use crate::render::AssetData;
 use crate::resource_location::ResourceLocation;
 use crate::screen::Screen;
@@ -16,6 +16,8 @@ pub struct QuitWidget {
     selected : bool,
     asset_data: AssetData,
     asset_data_selected : AssetData,
+    asset_data_dyslexia: AssetData,
+    asset_data_selected_dyslexia : AssetData,
     alignment: Alignment,
     coords : (i32, i32),
     game : *mut Game
@@ -51,6 +53,16 @@ impl QuitWidget {
                 origin: (0, 0),
                 resource_location: ResourceLocation::new("game", "gui/widgets/quit.png"),
             },
+            asset_data_dyslexia: AssetData {
+                uv: Some(Rect::new(0, 0, 112, 39)),
+                origin: (0, 0),
+                resource_location: ResourceLocation::new("game", "gui/widgets/quit_easy.png"),
+            },
+            asset_data_selected_dyslexia: AssetData {
+                uv: Some(Rect::new(0, 39, 112, 39)),
+                origin: (0, 0),
+                resource_location: ResourceLocation::new("game", "gui/widgets/quit_easy.png"),
+            },
             alignment,
             coords: (x, y),
             game
@@ -82,12 +94,29 @@ impl Widget for QuitWidget {
     }
 
     fn get_asset_data(&mut self) -> AssetData {
-        if self.selected {
-            self.asset_data_selected.clone()
+
+        let dyslexia = unsafe { &mut *self.game }.dyslexia_mode.clone();
+
+        match dyslexia {
+            DyslexiaMode::ON => {
+                if self.selected {
+                    self.asset_data_selected_dyslexia.clone()
+                }
+                else {
+                    self.asset_data_dyslexia.clone()
+                }
+            }
+            DyslexiaMode::OFF => {
+                if self.selected {
+                    self.asset_data_selected.clone()
+                }
+                else {
+                    self.asset_data.clone()
+                }
+            }
         }
-        else {
-            self.asset_data.clone()
-        }
+
+
     }
 
     fn set_asset_data(&mut self, ass: AssetData) {

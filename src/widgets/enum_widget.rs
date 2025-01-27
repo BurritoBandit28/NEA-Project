@@ -24,18 +24,18 @@ impl<T : WidgetEnum + 'static + Clone> EnumWidget<T> {
         self.enum_type.clone()
     }
 
-    pub fn create(alignment: Alignment, x: i32, y: i32, game: *mut Game, enumt : T) -> Box<dyn Widget> {
+    pub fn create(alignment: Alignment, x: i32, y: i32, game: *mut Game, enumt : T, h : u32, w : u32) -> Box<dyn Widget> {
         let ret = Self {
             enum_type:enumt ,
             current_indx: 0,
             selected: false,
             asset_data: AssetData {
-                uv: Some(Rect::new(0, 0, 20, 20)),
+                uv: Some(Rect::new(0, 0, w, h)),
                 origin: (0, 0),
                 resource_location: ResourceLocation::empty(),
             },
             asset_data_selected: AssetData {
-                uv: Some(Rect::new(0, 20, 20, 20)),
+                uv: Some(Rect::new(0, h as i32, w, h)),
                 origin: (0, 0),
                 resource_location: ResourceLocation::empty(),
             },

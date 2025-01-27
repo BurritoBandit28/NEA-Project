@@ -35,6 +35,9 @@ pub trait Screen {
 
     /// What the screen does every frame
     fn cycle(&mut self, mousex : u32, mousey : u32, events: Vec<Event>) {
+
+        self.tick(mousex, mousey, events);
+
         // get mutable game instance
         let game = unsafe { &mut *self.get_game() };
 
@@ -64,6 +67,8 @@ pub trait Screen {
             }
         }
     }
+
+    fn tick(&mut self, mousex : u32, mousey : u32, events: Vec<Event>) {}
 
     /// Render the screen to the ... Screen - the actual real one the player sees
     fn render(&mut self, textures : &HashMap<String, Texture>, sf : i32, canvas : &mut WindowCanvas, dims : (u32, u32), debug : bool) {

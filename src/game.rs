@@ -21,6 +21,7 @@ use crate::sound::{AudioManager, Sound};
 use crate::tile::{Tile, TileSize};
 use crate::utils::order_sort;
 use crate::widget::Widget;
+use crate::widgets::enum_widget::WidgetEnum;
 
 /// An object that manages a game instance. It holds all game data and manages the render, physics and screen loops
 pub struct Game {
@@ -39,7 +40,8 @@ pub struct Game {
     pub dims : (u32,u32),
     pub score : f32,
     debug : bool,
-    audio_manager: AudioManager
+    audio_manager: AudioManager,
+    pub dyslexia_mode: DyslexiaMode,
 }
 
 impl Game {
@@ -242,10 +244,49 @@ impl Game {
             score: 0.0,
             debug : false,
             audio_manager: AudioManager::create(),
+            dyslexia_mode : DyslexiaMode::OFF
         }
         
     }
 
     
+}
+
+#[derive(Clone)]
+pub enum DyslexiaMode {
+    ON,
+    OFF
+}
+
+impl DyslexiaMode {
+    pub fn state(&self) -> bool {
+        match self {
+            DyslexiaMode::ON => {true}
+            DyslexiaMode::OFF => {false}
+        }
+    }
+}
+
+impl WidgetEnum for DyslexiaMode{
+    fn get_as_string(&mut self) -> String {
+        match self {
+            DyslexiaMode::ON => {String::from("on")}
+            DyslexiaMode::OFF => {String::from("off")}
+        }
+    }
+
+    fn get_from_index(index: usize) -> Self {
+        match index {
+            0 => {DyslexiaMode::OFF}
+            _ => {DyslexiaMode::ON} }
+    }
+
+    fn count(&mut self) -> usize {
+        2usize
+    }
+
+    fn name(&mut self) -> String {
+        String::from("dyslexia_mode")
+    }
 }
 
